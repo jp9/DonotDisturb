@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Do Not Disturb</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="enabled">Enabled</string>
+    <string name="enabled_desc">Enable or disable this application.</string>
+    <string name="repeat_on_ring">Ring on Repeat</string>
+    <string name="start">Start</string>
+    <string name="default_start_time">10:00 PM</string>
+    <string name="end">End</string>
+    <string name="default_end_time">6:00 AM</string>
+    <string name="repeated_calls">Repeated calls</string>
+    <string name="silence">Silence</string>
+    <string name="am">AM</string>
+    <string name="pm">PM</string>
+    <string-array name="silence_options_2">
+        <item>Always</item>
+        <item>When phone is locked</item>
+    </string-array>
+</resources>
