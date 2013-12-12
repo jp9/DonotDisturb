@@ -18,7 +18,7 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TimePicker;
 
-import com.colossaldb.dnd.service.StartStopService;
+import com.colossaldb.dnd.service.StartStopReceiver;
 
 import prefs.AppPreferences;
 
@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
         // Set the default value for enabled.
         ((Switch) findViewById(R.id.dnd_enabled)).setChecked(AppPreferences.getInstance().isEnabled());
         ((Switch) findViewById(R.id.ring_on_repeat)).setChecked(AppPreferences.getInstance().ringOnRepeatCall());
-
+        ((Switch) findViewById(R.id.ring_for_contacts)).setChecked(AppPreferences.getInstance().ringForContacts());
         // Set the current time.
         setButtonTime((Button) findViewById(R.id.start_time), AppPreferences.getInstance().getStartHour(22),
                 AppPreferences.getInstance().getStartMinute(0), getApplicationContext());
@@ -63,23 +63,20 @@ public class MainActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
+        saveAll();
+    }
+
+    private void saveAll() {
         boolean dndEnabled = ((Switch) findViewById(R.id.dnd_enabled)).isChecked();
         boolean ringOnRepeat = ((Switch) findViewById(R.id.ring_on_repeat)).isChecked();
+        boolean ringForContacts = ((Switch) findViewById(R.id.ring_for_contacts)).isChecked();
         int startHourMin = Integer.valueOf(findViewById(R.id.start_time).getTag().toString());
         int startHour = startHourMin / 60;
         int startMin = startHourMin % 60;
         int endHourMin = Integer.valueOf(findViewById(R.id.end_time).getTag().toString());
         int endHour = endHourMin / 60;
         int endMin = endHourMin % 60;
-        AppPreferences.getInstance().save(dndEnabled, startHour, startMin, endHour, endMin, ringOnRepeat);
-        if (dndEnabled) {
-            // Send Broadcast
-            Intent intent = new Intent(getApplicationContext(), StartStopService.class);
-            intent.setAction("com.colossaldb.dnd.START_STOP");
-            sendBroadcast(intent);
-        } else {
-            // Figure out if we should re-enable ringer?
-        }
+        AppPreferences.getInstance().save(dndEnabled, startHour, startMin, endHour, endMin, ringOnRepeat, ringForContacts);
     }
 
     @Override
@@ -100,15 +97,7 @@ public class MainActivity extends Activity {
     }
 
     public void onToggleClicked(View view) {
-        boolean dndEnabled = ((Switch) findViewById(R.id.dnd_enabled)).isChecked();
-        boolean ringOnRepeat = ((Switch) findViewById(R.id.ring_on_repeat)).isChecked();
-        int startHourMin = Integer.valueOf(findViewById(R.id.start_time).getTag().toString());
-        int startHour = startHourMin / 60;
-        int startMin = startHourMin % 60;
-        int endHourMin = Integer.valueOf(findViewById(R.id.end_time).getTag().toString());
-        int endHour = endHourMin / 60;
-        int endMin = endHourMin % 60;
-        AppPreferences.getInstance().save(dndEnabled, startHour, startMin, endHour, endMin, ringOnRepeat);
+        saveAll();
     }
 
     public void onSpinnerChanged(View view) {
@@ -121,6 +110,17 @@ public class MainActivity extends Activity {
         boolean isStart = (view.getId() == R.id.start_time);
         DialogFragment newFragment = new TimePickerFragment(isStart, hour, min);
         newFragment.show(getFragmentManager(), "timePicker");
+    }
+
+    public void isEnabledClicked(View view) {
+        saveAll();
+        // Send Broadcast
+        Intent intent = new Intent(getApplicationContext(), StartStopReceiver.class);
+        intent.setAction("com.colossaldb.dnd.START_STOP");
+        sendBroadcast(intent);
+    }
+
+    public void ringForAllContacts(View view) {
     }
 
     /**
@@ -162,14 +162,13 @@ public class MainActivity extends Activity {
             Button b;
             if (isStartTime) {
                 AppPreferences.getInstance().setStartTime(hourOfDay, minute);
-                b = (Button) MainActivity.this.findViewById(R.id.start_time);
+                b = (Button) MainActivity.this.findViewById(R.id.start_time); // TODO: Fix this
             } else {
                 AppPreferences.getInstance().setEndTime(hourOfDay, minute);
                 b = (Button) MainActivity.this.findViewById(R.id.end_time);
             }
             setButtonTime(b, hourOfDay, minute, MainActivity.this);
         }
-
     }
 
     private static void setButtonTime(Button b, int hourOfDay, int minute, Context context) {

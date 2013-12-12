@@ -18,6 +18,7 @@ public class AppPreferences {
     private static final String END_MIN = "em";
     private static final String DND_ENABLED = "dnd_enabled";
     private static final String RING_ON_REPEAT = "ring_on_repeat";
+    private static final String RING_FOR_CONTACTS = "ring_for_contacts";
 
     private static AppPreferences INSTANCE = null;
 
@@ -72,6 +73,10 @@ public class AppPreferences {
         setTimes(END_HOUR, endHour, END_MIN, endMin);
     }
 
+    public boolean ringForContacts() {
+        return preferences.getBoolean(RING_FOR_CONTACTS, true);
+    }
+
     private void setTimes(String hourKey, int hour, String minKey, int mins) {
         SharedPreferences.Editor e = preferences.edit();
         e.putInt(hourKey, hour);
@@ -80,19 +85,20 @@ public class AppPreferences {
     }
 
     public void save(boolean dndEnabled, int startHour, int startMin, int endHour, int endMin,
-                     boolean ringOnRepeat) {
+                     boolean ringOnRepeat, boolean ringForContacts) {
         assert startHour >= 0 && startHour < 24;
         assert endHour >= 0 && endHour < 24;
         assert startMin >= 0 && startMin < 60;
         assert endMin >= 0 && endMin < 60;
 
-        SharedPreferences.Editor e = preferences.edit();
-        e.putBoolean(DND_ENABLED, dndEnabled);
-        e.putInt(START_HOUR, startHour);
-        e.putInt(START_MIN, startMin);
-        e.putInt(END_HOUR, endHour);
-        e.putInt(END_MIN, endMin);
-        e.putBoolean(RING_ON_REPEAT, ringOnRepeat);
-        e.apply();
+        SharedPreferences.Editor edit = preferences.edit();
+        edit.putBoolean(DND_ENABLED, dndEnabled);
+        edit.putInt(START_HOUR, startHour);
+        edit.putInt(START_MIN, startMin);
+        edit.putInt(END_HOUR, endHour);
+        edit.putInt(END_MIN, endMin);
+        edit.putBoolean(RING_ON_REPEAT, ringOnRepeat);
+        edit.putBoolean(RING_FOR_CONTACTS, ringForContacts);
+        edit.apply();
     }
 }

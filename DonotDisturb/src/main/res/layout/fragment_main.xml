@@ -9,7 +9,7 @@
     tools:context=".MainActivity$PlaceholderFragment">
 
     <TableLayout
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_width="wrap_content">
 
         <TableRow
@@ -21,7 +21,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="@string/enabled"
-                android:onClick="onToggleClicked"
+                android:onClick="isEnabledClicked"
                 android:layout_weight="100" />
         </TableRow>
 
@@ -30,6 +30,18 @@
             android:layout_height="wrap_content">
 
             <TextView android:text="@string/enabled_desc" />
+        </TableRow>
+
+        <TableRow>
+
+            <Switch
+                android:id="@+id/ring_for_contacts"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:text="@string/contacts"
+                android:checked="true"
+                android:onClick="ringForAllContacts"
+                android:layout_weight="100" />
         </TableRow>
 
         <TableRow
@@ -46,13 +58,20 @@
                 android:layout_weight="100" />
         </TableRow>
 
+        <TableRow>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="@string/ring_on_repeat_desc" />
+        </TableRow>
+
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
             <TextView
                 android:text="@string/start"
-                android:layout_weight="50" />
+                android:layout_weight="1600" />
 
             <Button
                 android:id="@+id/start_time"
@@ -62,14 +81,13 @@
                 android:onClick="showTimePickerDialog"
                 android:tag="1320"
                 android:layout_weight="100" />
-            <!--TimePicker android:id="@+id/start_time" /-->
         </TableRow>
 
         <TableRow>
 
             <TextView
                 android:text="@string/end"
-                android:layout_weight="200"
+                android:layout_weight="800"
                 android:layout_width="wrap_content" />
 
             <Button
@@ -83,17 +101,6 @@
             <!--TimePicker android:id="@+id/end_time"/-->
         </TableRow>
 
-        <TableRow>
-
-            <Switch
-                android:id="@+id/repeated"
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:text="@string/repeated_calls"
-                android:checked="true"
-                android:onClick="onToggleClicked"
-                android:layout_weight="100" />
-        </TableRow>
 
         <TableRow>
 

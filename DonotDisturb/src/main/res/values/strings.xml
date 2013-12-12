@@ -13,8 +13,10 @@
     <string name="default_end_time">6:00 AM</string>
     <string name="repeated_calls">Repeated calls</string>
     <string name="silence">Silence</string>
+    <string name="contacts">Ring for all contacts</string>
     <string name="am">AM</string>
     <string name="pm">PM</string>
+    <string name="ring_on_repeat_desc">The phone will ring if you receive a call from the same phone twice within a span of 10 minutes</string>
     <string-array name="silence_options_2">
         <item>Always</item>
         <item>When phone is locked</item>
