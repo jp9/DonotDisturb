@@ -40,7 +40,7 @@
 
         <receiver android:name=".service.StartStopReceiver">
             <intent-filter>
-            <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="com.colossaldb.dnd.START_STOP" />
             </intent-filter>
         </receiver>
