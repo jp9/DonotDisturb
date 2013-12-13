@@ -128,12 +128,12 @@ public class DebugFragment extends PreferenceFragment {
 
         Preference ringForContacts = new Preference(getActivity());
         ringForContacts.setTitle(R.string.contacts);
-        ringForContacts.setSummary("" + pref.isEnabled());
+        ringForContacts.setSummary("" + pref.ringForContacts());
         present.addPreference(ringForContacts);
 
         Preference ringOnRepeat = new Preference(getActivity());
         ringOnRepeat.setTitle(R.string.repeat_on_ring);
-        ringOnRepeat.setSummary("" + pref.isEnabled());
+        ringOnRepeat.setSummary("" + pref.ringOnRepeatCall());
         present.addPreference(ringOnRepeat);
 
         // Add the current state
