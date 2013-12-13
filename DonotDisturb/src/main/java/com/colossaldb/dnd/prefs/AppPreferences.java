@@ -1,4 +1,4 @@
-package prefs;
+package com.colossaldb.dnd.prefs;
 
 import android.content.Context;
 import android.content.SharedPreferences;

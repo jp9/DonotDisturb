@@ -10,46 +10,15 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.util.Pair;
 
-import java.util.Calendar;
+import com.colossaldb.dnd.prefs.AppPreferences;
 
-import prefs.AppPreferences;
+import java.util.Calendar;
 
 /**
  * Created by Jayaprakash Pasala on 12/10/13.
+ *
  */
 public class StartStopReceiver extends BroadcastReceiver {
-//    private static volatile boolean isListenerRegistered = false;
-
-//    private PhoneStateListener stateListener = new PhoneStateListener() {
-//        @Override
-//        public void onCallStateChanged(int state, String number) {
-//            switch (state) {
-//                case TelephonyManager.CALL_STATE_RINGING:
-//                    if (isContact(number)) {
-//
-//                    }
-//                    Long last = phoneNumToLastCall.get(number);
-//                    long currentTimeMillis = System.currentTimeMillis();
-//                    if(last == null) {
-//                        phoneNumToLastCall.put(number, currentTimeMillis);
-//                    } else {
-//                        if (currentTimeMillis-last <= 600000L) {
-//                            AudioManager audioManager = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
-//                            enableNormal(audioManager);
-//                            phoneNumToLastCall.put(number, currentTimeMillis);
-//                        }
-//                    }
-//                    break;
-//                case TelephonyManager.CALL_STATE_IDLE:
-//                    // Send Broadcast
-//                    if (AppPreferences.getInstance().isEnabled()) {
-//                        execDnd(MyApp.getAppContext(), AppPreferences.getInstance());
-//                    }
-//                    break;
-//            }
-//        }
-//    };
-
 
     @Override
     public void onReceive(final Context context, Intent intent) {

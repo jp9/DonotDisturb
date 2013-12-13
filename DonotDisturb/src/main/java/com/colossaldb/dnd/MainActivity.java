@@ -18,9 +18,8 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TimePicker;
 
+import com.colossaldb.dnd.prefs.AppPreferences;
 import com.colossaldb.dnd.service.StartStopReceiver;
-
-import prefs.AppPreferences;
 
 public class MainActivity extends Activity {
 
