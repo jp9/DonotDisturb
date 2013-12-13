@@ -26,7 +26,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AppPreferences.initialize(getApplicationContext());
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {

@@ -16,13 +16,11 @@ import java.util.Calendar;
 
 /**
  * Created by Jayaprakash Pasala on 12/10/13.
- *
  */
 public class StartStopReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-        AppPreferences.initialize(context);
         AppPreferences pref = AppPreferences.getInstance();
         if (!pref.isEnabled()) {
             // The application is not in play. Shutdown.

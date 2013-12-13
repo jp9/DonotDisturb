@@ -3,6 +3,8 @@ package com.colossaldb.dnd;
 import android.app.Application;
 import android.content.Context;
 
+import com.colossaldb.dnd.prefs.AppPreferences;
+
 /**
  * Created by Jayaprakash Pasala
  * Date:  12/11/13
@@ -14,6 +16,7 @@ public class MyApp extends Application {
     public void onCreate() {
         super.onCreate();
         MyApp.context = getApplicationContext();
+        AppPreferences.initialize(MyApp.context);
     }
 
     public static Context getAppContext() {
