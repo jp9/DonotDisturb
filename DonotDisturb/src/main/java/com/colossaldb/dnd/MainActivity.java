@@ -140,7 +140,7 @@ public class MainActivity extends Activity {
             case R.id.action_about:
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setMessage(R.string.about_desc)
-                        .setPositiveButton(R.string.unmute, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                             }
                         });
