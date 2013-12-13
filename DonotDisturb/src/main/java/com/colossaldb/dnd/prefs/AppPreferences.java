@@ -93,7 +93,7 @@ public class AppPreferences {
     }
 
     public boolean ringForContacts() {
-        return preferences.getBoolean(RING_FOR_CONTACTS, true);
+        return preferences.getBoolean(RING_FOR_CONTACTS, false);
     }
 
     private void setTimes(String hourKey, int hour, String minKey, int mins) {
