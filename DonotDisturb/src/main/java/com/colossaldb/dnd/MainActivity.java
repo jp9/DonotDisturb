@@ -84,10 +84,10 @@ public class MainActivity extends Activity {
         ((Switch) findViewById(R.id.ring_for_contacts)).setChecked(AppPreferences.getInstance().ringForContacts());
         // Set the current time.
         setButtonTime((Button) findViewById(R.id.start_time), AppPreferences.getInstance().getStartHour(22),
-                AppPreferences.getInstance().getStartMinute(0), getApplicationContext());
+                AppPreferences.getInstance().getStartMinute(0));
         // Set the current time.
         setButtonTime((Button) findViewById(R.id.end_time), AppPreferences.getInstance().getEndHour(6),
-                AppPreferences.getInstance().getEndMinute(0), getApplicationContext());
+                AppPreferences.getInstance().getEndMinute(0));
     }
 
     @Override
@@ -174,8 +174,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    public class TimePickerFragment extends DialogFragment
-            implements TimePickerDialog.OnTimeSetListener {
+    public static class TimePickerFragment extends DialogFragment
+    implements TimePickerDialog.OnTimeSetListener {
 
         final boolean isStartTime;
         final int defaultHour;
@@ -190,24 +190,27 @@ public class MainActivity extends Activity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Create a new instance of TimePickerDialog and return it
-            return new TimePickerDialog(MainActivity.this, this, this.defaultHour, this.defaultMin,
-                    DateFormat.is24HourFormat(MainActivity.this));
+            return new TimePickerDialog(getActivity(), this, this.defaultHour, this.defaultMin,
+                    DateFormat.is24HourFormat(MyApp.getAppContext()));
         }
 
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             Button b;
+            if (getActivity() == null)
+                return;
+
             if (isStartTime) {
                 AppPreferences.getInstance().setStartTime(hourOfDay, minute);
-                b = (Button) MainActivity.this.findViewById(R.id.start_time); // TODO: Fix this
+                b = (Button) getActivity().findViewById(R.id.start_time);
             } else {
                 AppPreferences.getInstance().setEndTime(hourOfDay, minute);
-                b = (Button) MainActivity.this.findViewById(R.id.end_time);
+                b = (Button) getActivity().findViewById(R.id.end_time);
             }
-            setButtonTime(b, hourOfDay, minute, MainActivity.this);
+            setButtonTime(b, hourOfDay, minute);
         }
     }
 
-    private static void setButtonTime(Button b, int hourOfDay, int minute, Context context) {
+    private static void setButtonTime(Button b, int hourOfDay, int minute) {
         if (b == null)
             return;
 
@@ -218,7 +221,7 @@ public class MainActivity extends Activity {
             hourOfDay = hourOfDay == 12 ? 12 : hourOfDay - 12;
         }
 
-        b.setText(String.format("%2d:%02d %s", hourOfDay, minute, context.getString(isAM ? R.string.am : R.string.pm)));
+        b.setText(String.format("%2d:%02d %s", hourOfDay, minute, MyApp.getAppContext().getString(isAM ? R.string.am : R.string.pm)));
     }
 
 }
