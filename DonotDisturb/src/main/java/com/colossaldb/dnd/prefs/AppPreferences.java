@@ -20,7 +20,7 @@ public class AppPreferences {
     private static final String RING_ON_REPEAT = "ring_on_repeat";
     private static final String RING_FOR_CONTACTS = "ring_for_contacts";
 
-    private static AppPreferences INSTANCE = null;
+    private static volatile AppPreferences INSTANCE = null;
 
     private SharedPreferences preferences;
 
@@ -30,7 +30,8 @@ public class AppPreferences {
      * @param appContext - Application context
      */
     public static synchronized void initialize(Context appContext) {
-        INSTANCE = new AppPreferences(appContext);
+        if (INSTANCE == null)
+            INSTANCE = new AppPreferences(appContext);
     }
 
     public static AppPreferences getInstance() {

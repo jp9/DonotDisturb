@@ -22,6 +22,7 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        AppPreferences.initialize(context.getApplicationContext());
         String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
         Log.i("PhoneStateBroadcastReceiver", " State = " + state);
         if (!AppPreferences.getInstance().isEnabled() ||
