@@ -137,7 +137,7 @@ public class StartStopReceiver extends BroadcastReceiver {
             AppPreferences.getInstance().writeDebugEvent("Ringer Silent", "Ringer set to silent");
             Log.i("StartStopReceiver", "Ringer is made silent");
         } else {
-            Log.i("StartStopReceiver", "Ringer is already Normal");
+            Log.i("StartStopReceiver", "Ringer is already silent");
         }
     }
 
@@ -145,9 +145,9 @@ public class StartStopReceiver extends BroadcastReceiver {
         if (am.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
             am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
             Log.i("StartStopReceiver", "Ringer is made normal");
-            AppPreferences.getInstance().writeDebugEvent("Ringer Normal", "Ringer set to Normal");
+            AppPreferences.getInstance().writeDebugEvent("Ringer normal", "Ringer set to normal");
         } else {
-            Log.i("StartStopReceiver", "Ringer is already silent");
+            Log.i("StartStopReceiver", "Ringer is already set to normal");
         }
     }
 }
