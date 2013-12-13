@@ -17,6 +17,8 @@
     <string name="am">AM</string>
     <string name="pm">PM</string>
     <string name="ring_on_repeat_desc">The phone will ring if you receive a call from the same phone twice within a span of 10 minutes</string>
+    <string name="enable_ringer">Ringer is on mute, do you want to unmute?</string>
+    <string name="unmute">Unmute</string>
     <string-array name="silence_options_2">
         <item>Always</item>
         <item>When phone is locked</item>

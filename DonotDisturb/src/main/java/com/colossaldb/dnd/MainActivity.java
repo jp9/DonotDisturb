@@ -1,12 +1,15 @@
 package com.colossaldb.dnd;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -15,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TimePicker;
 
@@ -39,9 +43,44 @@ public class MainActivity extends Activity {
     public void onStart() {
         super.onStart();
 
+        CompoundButton.OnCheckedChangeListener dndEnabledListener = new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (!isChecked) {
+                    AudioManager audioManager = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
+                    if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
+                        // Use the Builder class for convenient dialog construction
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setMessage(R.string.enable_ringer)
+                                .setPositiveButton(R.string.unmute, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        AudioManager am = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
+                                        am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                                    }
+                                })
+                                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        // User cancelled the dialog
+                                    }
+                                });
+                        builder.create().show();
+                    }
+                }
+                saveAll();
+            }
+        };
+
+        CompoundButton.OnCheckedChangeListener saveListener = new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                saveAll();
+            }
+        };
+
         // Set the default value for enabled.
+        ((Switch) findViewById(R.id.dnd_enabled)).setOnCheckedChangeListener(dndEnabledListener);
         ((Switch) findViewById(R.id.dnd_enabled)).setChecked(AppPreferences.getInstance().isEnabled());
+        ((Switch) findViewById(R.id.ring_on_repeat)).setOnCheckedChangeListener(saveListener);
         ((Switch) findViewById(R.id.ring_on_repeat)).setChecked(AppPreferences.getInstance().ringOnRepeatCall());
+        ((Switch) findViewById(R.id.ring_for_contacts)).setOnCheckedChangeListener(saveListener);
         ((Switch) findViewById(R.id.ring_for_contacts)).setChecked(AppPreferences.getInstance().ringForContacts());
         // Set the current time.
         setButtonTime((Button) findViewById(R.id.start_time), AppPreferences.getInstance().getStartHour(22),
@@ -61,7 +100,6 @@ public class MainActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-        saveAll();
     }
 
     private void saveAll() {
@@ -75,6 +113,11 @@ public class MainActivity extends Activity {
         int endHour = endHourMin / 60;
         int endMin = endHourMin % 60;
         AppPreferences.getInstance().save(dndEnabled, startHour, startMin, endHour, endMin, ringOnRepeat, ringForContacts);
+
+        // Fire the broadcast to StartStopReceiver.
+        Intent intent = new Intent(getApplicationContext(), StartStopReceiver.class);
+        intent.setAction("com.colossaldb.dnd.START_STOP");
+        sendBroadcast(intent);
     }
 
     @Override
@@ -94,13 +137,6 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onToggleClicked(View view) {
-        saveAll();
-    }
-
-    public void onSpinnerChanged(View view) {
-    }
-
     public void showTimePickerDialog(View view) {
         int hourMin = Integer.valueOf(view.getTag().toString());
         int hour = hourMin / 60;
@@ -108,17 +144,6 @@ public class MainActivity extends Activity {
         boolean isStart = (view.getId() == R.id.start_time);
         DialogFragment newFragment = new TimePickerFragment(isStart, hour, min);
         newFragment.show(getFragmentManager(), "timePicker");
-    }
-
-    public void isEnabledClicked(View view) {
-        saveAll();
-        // Send Broadcast
-        Intent intent = new Intent(getApplicationContext(), StartStopReceiver.class);
-        intent.setAction("com.colossaldb.dnd.START_STOP");
-        sendBroadcast(intent);
-    }
-
-    public void ringForAllContacts(View view) {
     }
 
     /**
