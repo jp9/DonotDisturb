@@ -2,6 +2,13 @@ package com.colossaldb.dnd.prefs;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
 
 /**
  * Created by Jayaprakash Pasala
@@ -10,6 +17,9 @@ import android.content.SharedPreferences;
  */
 public class AppPreferences {
     private static final String PREFERENCE_NAME = "AppPreferences";
+    private static final String DEBUG_PREF_NAME = "DebugAppInfo";
+
+    private static final int MAX_LIST_SIZE = 20;
 
     // Keys
     private static final String START_HOUR = "sh";
@@ -19,10 +29,17 @@ public class AppPreferences {
     private static final String DND_ENABLED = "dnd_enabled";
     private static final String RING_ON_REPEAT = "ring_on_repeat";
     private static final String RING_FOR_CONTACTS = "ring_for_contacts";
+    public static final String NEXT_ALARM_KEY = "NextAlarm";
+    public static final String ERROR_EVENTS_KEY = "ErrorEvents";
+    public static final String DEBUG_EVENTS_KEY = "DebugEvents";
+    public static final String TITLE_KEY = "title";
+    public static final String DETAIL_KEY = "detail";
+    public static final String TIMESTAMP_KEY = "ts";
 
     private static volatile AppPreferences INSTANCE = null;
 
     private SharedPreferences preferences;
+    private SharedPreferences debugPreferences;
 
     /**
      * Expected to be called only once during the full lifecycle.
@@ -40,6 +57,7 @@ public class AppPreferences {
 
     private AppPreferences(Context appContext) {
         preferences = appContext.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
+        debugPreferences = appContext.getSharedPreferences(DEBUG_PREF_NAME, Context.MODE_PRIVATE);
     }
 
     public int getStartHour(int defValue) {
@@ -101,5 +119,101 @@ public class AppPreferences {
         edit.putBoolean(RING_ON_REPEAT, ringOnRepeat);
         edit.putBoolean(RING_FOR_CONTACTS, ringForContacts);
         edit.apply();
+    }
+
+    public CharSequence getFormattedStartTime() {
+        return String.format("%2d:%02d ", INSTANCE.getStartHour(-1), INSTANCE.getStartMinute(-1));
+    }
+
+    public CharSequence getFormattedEndTime() {
+        return String.format("%2d:%02d ", INSTANCE.getEndHour(-1), INSTANCE.getEndMinute(-1));
+    }
+
+    /**
+     * Write the debug events that have already occurred.
+     *
+     * @param title  - title of the event
+     * @param detail - event details
+     */
+    public void writeDebugEvent(String title, String detail) {
+        try {
+            writeToPrefList(debugPreferences, DEBUG_EVENTS_KEY, title, detail);
+        } catch (JSONException ignored) {
+            Log.e("AppPreferences", "Title [" + title + "] and detail [" + detail + "]", ignored);
+        }
+    }
+
+    public JSONArray getDebugEvents() {
+        return getJSONArray(debugPreferences, DEBUG_EVENTS_KEY);
+    }
+
+    /**
+     * Write the error event.
+     *
+     * @param title  - title
+     * @param detail - detail
+     */
+    public void writeErrorEvent(String title, String detail) {
+        try {
+            writeToPrefList(debugPreferences, ERROR_EVENTS_KEY, title, detail);
+        } catch (JSONException ignored) {
+            Log.e("AppPreferences", "Title [" + title + "] and detail [" + detail + "]", ignored);
+        }
+    }
+
+    public JSONArray getErrorEvents() {
+        return getJSONArray(debugPreferences, ERROR_EVENTS_KEY);
+    }
+
+    /**
+     * Store the details when the next scheduled event is going to run.
+     *
+     * @param details - details
+     */
+    public void logNextRun(String details) {
+        debugPreferences.edit().putString(NEXT_ALARM_KEY, details).apply();
+    }
+
+    /**
+     * @return The next scheduled run details.
+     */
+    public String getNextScheduleRun() {
+        return debugPreferences.getString(NEXT_ALARM_KEY, "");
+    }
+
+    private static void writeToPrefList(SharedPreferences preferences, String listKey, String title, String detail) throws JSONException {
+        JSONArray events = getJSONArray(preferences, listKey);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(TIMESTAMP_KEY, new Date(System.currentTimeMillis()).toString());
+        jsonObject.put(TITLE_KEY, title);
+        jsonObject.put(DETAIL_KEY, detail);
+        events.put(jsonObject);
+
+        if (events.length() > MAX_LIST_SIZE) {
+            JSONArray newArray = new JSONArray();
+            for (int i = events.length() - MAX_LIST_SIZE; i < MAX_LIST_SIZE; i++) {
+                newArray.put(events.get(i));
+            }
+            events = newArray;
+        }
+
+        preferences.edit().putString(listKey, events.toString()).apply();
+    }
+
+    private static JSONArray getJSONArray(SharedPreferences preferences, String listKey) {
+        JSONArray events;
+        String eventStr = preferences.getString(listKey, null);
+        if (eventStr == null) {
+            events = new JSONArray();
+        } else {
+            try {
+                events = new JSONArray(eventStr);
+            } catch (JSONException ignored) {
+                // Cannot do much...
+                Log.e("AppPreferences", "Error: " + ignored.getMessage(), ignored);
+                events = new JSONArray();
+            }
+        }
+        return events;
     }
 }

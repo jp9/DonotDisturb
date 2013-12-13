@@ -32,6 +32,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.colossaldb.dnd.DebugActivity"
+            android:label="@string/action_debug">
+        </activity>
+
         <receiver android:name=".service.PhoneStateBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />

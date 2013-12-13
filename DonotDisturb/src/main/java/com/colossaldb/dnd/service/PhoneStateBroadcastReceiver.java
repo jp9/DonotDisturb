@@ -25,7 +25,8 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
         String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
         Log.i("PhoneStateBroadcastReceiver", " State = " + state);
         if (!AppPreferences.getInstance().isEnabled() ||
-                !(AppPreferences.getInstance().ringOnRepeatCall() && AppPreferences.getInstance().ringForContacts()))
+                !(AppPreferences.getInstance().ringOnRepeatCall() && AppPreferences.getInstance().ringForContacts())
+                || !(StartStopReceiver.getDelay(AppPreferences.getInstance()).second))
             return;
 
         if ("RINGING".equals(state)) {
@@ -64,6 +65,8 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
 
             if ((isContact && AppPreferences.getInstance().ringForContacts())
                     || (isSecondMissedCall && AppPreferences.getInstance().ringOnRepeatCall())) {
+                AppPreferences.getInstance().writeDebugEvent("Enabling Ringer Volume", "isContact: ["
+                        + isContact + "] isSecondMissedCall [" + isSecondMissedCall + "]");
                 AudioManager audioManager = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
                 StartStopReceiver.enableNormal(audioManager);
             }

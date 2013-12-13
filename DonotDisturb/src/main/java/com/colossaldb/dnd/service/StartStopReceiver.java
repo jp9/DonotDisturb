@@ -13,6 +13,7 @@ import android.util.Pair;
 import com.colossaldb.dnd.prefs.AppPreferences;
 
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by Jayaprakash Pasala on 12/10/13.
@@ -34,6 +35,7 @@ public class StartStopReceiver extends BroadcastReceiver {
                     futureIntent,
                     PendingIntent.FLAG_CANCEL_CURRENT);
 
+            AppPreferences.getInstance().writeDebugEvent("App Disabled", "Canceled intents.");
             return;
         }
 
@@ -126,11 +128,13 @@ public class StartStopReceiver extends BroadcastReceiver {
 
         AlarmManager alarmManager = (AlarmManager) (context.getSystemService(Context.ALARM_SERVICE));
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + delay, pendingIntent);
+        AppPreferences.getInstance().logNextRun("Next alarm: " + new Date(System.currentTimeMillis() + delay));
     }
 
     static void setToSilent(AudioManager am) {
         if (am.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
             am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+            AppPreferences.getInstance().writeDebugEvent("Ringer Silent", "Ringer set to silent");
             Log.i("StartStopReceiver", "Ringer is made silent");
         } else {
             Log.i("StartStopReceiver", "Ringer is already Normal");
@@ -141,6 +145,7 @@ public class StartStopReceiver extends BroadcastReceiver {
         if (am.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
             am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
             Log.i("StartStopReceiver", "Ringer is made normal");
+            AppPreferences.getInstance().writeDebugEvent("Ringer Normal", "Ringer set to Normal");
         } else {
             Log.i("StartStopReceiver", "Ringer is already silent");
         }
