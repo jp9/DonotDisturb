@@ -16,7 +16,7 @@
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="2">
 
             <Switch
                 android:id="@+id/dnd_enabled"
@@ -29,14 +29,14 @@
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="2">
 
             <TextView android:text="@string/enabled_desc"/>
         </TableRow>
 
         <TableRow android:layout_width="fill_parent"
                   android:layout_height="0dp"
-                  android:layout_weight="1">
+                  android:layout_weight="2">
             <Switch
                 android:id="@+id/ring_for_contacts"
                 android:layout_width="fill_parent"
@@ -48,7 +48,7 @@
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="2">
 
             <Switch
                 android:id="@+id/ring_on_repeat"
@@ -60,7 +60,7 @@
 
         <TableRow android:layout_width="fill_parent"
                   android:layout_height="0dp"
-                  android:layout_weight="1">
+                  android:layout_weight="2">
             <TextView
                 android:layout_width="wrap_content"
                 android:text="@string/ring_on_repeat_desc"/>
@@ -69,7 +69,7 @@
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="2">
 
             <TextView
                 android:text="@string/start"
@@ -88,7 +88,7 @@
 
         <TableRow android:layout_width="fill_parent"
                   android:layout_height="0dp"
-                  android:layout_weight="1">
+                  android:layout_weight="2">
             <TextView
                 android:text="@string/end"
                 android:layout_weight="100"

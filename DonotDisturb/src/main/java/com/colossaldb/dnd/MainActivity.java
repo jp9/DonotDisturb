@@ -155,7 +155,7 @@ public class MainActivity extends Activity {
         int hour = hourMin / 60;
         int min = hourMin % 60;
         boolean isStart = (view.getId() == R.id.start_time);
-        DialogFragment newFragment = new TimePickerFragment(isStart, hour, min);
+        DialogFragment newFragment = new TimePickerFragment(view.getId(), isStart, hour, min);
         newFragment.show(getFragmentManager(), "timePicker");
     }
 
@@ -180,8 +180,10 @@ public class MainActivity extends Activity {
         final boolean isStartTime;
         final int defaultHour;
         final int defaultMin;
+        final int buttonId;
 
-        TimePickerFragment(boolean isStartTime, int hour, int min) {
+        TimePickerFragment(int buttonId, boolean isStartTime, int hour, int min) {
+            this.buttonId = buttonId;
             this.isStartTime = isStartTime;
             this.defaultHour = hour;
             this.defaultMin = min;
@@ -201,11 +203,10 @@ public class MainActivity extends Activity {
 
             if (isStartTime) {
                 AppPreferences.getInstance().setStartTime(hourOfDay, minute);
-                b = (Button) getActivity().findViewById(R.id.start_time);
             } else {
                 AppPreferences.getInstance().setEndTime(hourOfDay, minute);
-                b = (Button) getActivity().findViewById(R.id.end_time);
             }
+            b = (Button) getActivity().findViewById(buttonId);
             setButtonTime(b, hourOfDay, minute);
         }
     }
