@@ -82,7 +82,7 @@
             android:orientation="horizontal"
             android:layout_marginTop="3dp"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="20dp"
             android:layout_marginBottom="3dp"
             >
     <TextView
@@ -111,7 +111,7 @@
             android:layout_below="@id/linearLayout"
             android:orientation="horizontal"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="20dp"
             android:layout_marginBottom="3dp">
     <TextView
             android:id="@+id/end_label"
