@@ -235,6 +235,11 @@ public class MainActivity extends Activity {
             }
             Button b = (Button) getActivity().findViewById(buttonId);
             setButtonTime(b, hourOfDay, minute);
+
+            // Fire the broadcast to StartStopReceiver.
+            Intent intent = new Intent(MyApp.getAppContext(), StartStopReceiver.class);
+            intent.setAction("com.colossaldb.dnd.START_STOP");
+            MyApp.getAppContext().sendBroadcast(intent);
         }
     }
 
