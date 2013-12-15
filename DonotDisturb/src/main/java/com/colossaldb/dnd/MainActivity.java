@@ -197,7 +197,6 @@ public class MainActivity extends Activity {
         }
 
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            Button b;
             if (getActivity() == null)
                 return;
 
@@ -206,7 +205,7 @@ public class MainActivity extends Activity {
             } else {
                 AppPreferences.getInstance().setEndTime(hourOfDay, minute);
             }
-            b = (Button) getActivity().findViewById(buttonId);
+            Button b = (Button) getActivity().findViewById(buttonId);
             setButtonTime(b, hourOfDay, minute);
         }
     }
