@@ -59,55 +59,41 @@ public class MainActivity extends Activity {
         }
     }
 
+    final CompoundButton.OnCheckedChangeListener dndEnabledListener = new CompoundButton.OnCheckedChangeListener() {
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (!isChecked) {
+                AudioManager audioManager = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
+                if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
+                    // Use the Builder class for convenient dialog construction
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setMessage(R.string.enable_ringer)
+                            .setPositiveButton(R.string.unmute, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    AudioManager am = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
+                                    am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                                }
+                            })
+                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // User cancelled the dialog
+                                }
+                            });
+                    builder.create().show();
+                }
+            }
+            saveAll();
+        }
+    };
+
+    final CompoundButton.OnCheckedChangeListener saveListener = new CompoundButton.OnCheckedChangeListener() {
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            saveAll();
+        }
+    };
+
     @Override
     public void onStart() {
         super.onStart();
-
-        CompoundButton.OnCheckedChangeListener dndEnabledListener = new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!isChecked) {
-                    AudioManager audioManager = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
-                    if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
-                        // Use the Builder class for convenient dialog construction
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setMessage(R.string.enable_ringer)
-                                .setPositiveButton(R.string.unmute, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        AudioManager am = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
-                                        am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                                    }
-                                })
-                                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // User cancelled the dialog
-                                    }
-                                });
-                        builder.create().show();
-                    }
-                }
-                saveAll();
-            }
-        };
-
-        CompoundButton.OnCheckedChangeListener saveListener = new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                saveAll();
-            }
-        };
-
-        // Set the default value for enabled.
-        ((Switch) findViewById(R.id.dnd_enabled)).setOnCheckedChangeListener(dndEnabledListener);
-        ((Switch) findViewById(R.id.dnd_enabled)).setChecked(AppPreferences.getInstance().isEnabled());
-        ((Switch) findViewById(R.id.ring_on_repeat)).setOnCheckedChangeListener(saveListener);
-        ((Switch) findViewById(R.id.ring_on_repeat)).setChecked(AppPreferences.getInstance().ringOnRepeatCall());
-        ((Switch) findViewById(R.id.ring_for_contacts)).setOnCheckedChangeListener(saveListener);
-        ((Switch) findViewById(R.id.ring_for_contacts)).setChecked(AppPreferences.getInstance().ringForContacts());
-        // Set the current time.
-        setButtonTime((Button) findViewById(R.id.start_time), AppPreferences.getInstance().getStartHour(22),
-                AppPreferences.getInstance().getStartMinute(0));
-        // Set the current time.
-        setButtonTime((Button) findViewById(R.id.end_time), AppPreferences.getInstance().getEndHour(6),
-                AppPreferences.getInstance().getEndMinute(0));
     }
 
     @Override
@@ -143,6 +129,27 @@ public class MainActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
+
+        // First disable the setChecked for the switches
+        ((Switch) findViewById(R.id.dnd_enabled)).setOnCheckedChangeListener(null);
+        ((Switch) findViewById(R.id.ring_on_repeat)).setOnCheckedChangeListener(null);
+        ((Switch) findViewById(R.id.ring_for_contacts)).setOnCheckedChangeListener(null);
+
+        // Set the default value for enabled.
+        ((Switch) findViewById(R.id.dnd_enabled)).setChecked(AppPreferences.getInstance().isEnabled());
+        ((Switch) findViewById(R.id.ring_on_repeat)).setChecked(AppPreferences.getInstance().ringOnRepeatCall());
+        ((Switch) findViewById(R.id.ring_for_contacts)).setChecked(AppPreferences.getInstance().ringForContacts());
+        // Set the current time.
+        setButtonTime((Button) findViewById(R.id.start_time), AppPreferences.getInstance().getStartHour(22),
+                AppPreferences.getInstance().getStartMinute(0));
+        // Set the current time.
+        setButtonTime((Button) findViewById(R.id.end_time), AppPreferences.getInstance().getEndHour(6),
+                AppPreferences.getInstance().getEndMinute(0));
+
+        // Now re-enable the listener for switches
+        ((Switch) findViewById(R.id.dnd_enabled)).setOnCheckedChangeListener(dndEnabledListener);
+        ((Switch) findViewById(R.id.ring_on_repeat)).setOnCheckedChangeListener(saveListener);
+        ((Switch) findViewById(R.id.ring_for_contacts)).setOnCheckedChangeListener(saveListener);
     }
 
     @Override

@@ -86,7 +86,7 @@
                 android:layout_weight="1"
                 android:text="@string/default_end_time"
                 android:onClick="showTimePickerDialog"
-                android:tag="1320"/>
+                android:tag="360"/>
     </LinearLayout>
 
         <Switch
