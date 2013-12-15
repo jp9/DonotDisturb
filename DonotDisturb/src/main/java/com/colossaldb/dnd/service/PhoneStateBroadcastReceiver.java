@@ -13,6 +13,30 @@ import android.util.Log;
 import com.colossaldb.dnd.MyApp;
 import com.colossaldb.dnd.prefs.AppPreferences;
 
+
+/**
+ * Copyright (C) 2013  Jayaprakash Pasala
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ * Phone State broad cast receiver.
+ *  - Decisions to unmute the phone or not is tackled here.
+ *      - First check whether the app is enabled or not.
+ *      - Next verify that the options are turned on
+ *      - Verify that we are actually in the quiet time period.
+ */
 /**
  * Created by Jayaprakash Pasala
  * Date:  12/11/13
