@@ -16,7 +16,7 @@
     <string name="contacts">Ring for contacts</string>
     <string name="am">AM</string>
     <string name="pm">PM</string>
-    <string name="ring_on_repeat_desc">The phone will ring if you receive a call from the same phone twice within a span of 10 minutes</string>
+    <string name="ring_on_repeat_desc">Your phone will ring if you receive a phone call from the same number twice within a span of 10 minutes</string>
     <string name="enable_ringer">Ringer is on mute, do you want to unmute?</string>
     <string name="unmute">Unmute</string>
     <string name="past">Past</string>
