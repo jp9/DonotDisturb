@@ -1,49 +1,38 @@
 package com.colossaldb.dnd;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.TimePickerDialog;
+import android.app.*;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TimePicker;
-
 import com.colossaldb.dnd.prefs.AppPreferences;
 import com.colossaldb.dnd.service.StartStopReceiver;
 
 /**
  * Copyright (C) 2013  Jayaprakash Pasala
- *
+ * <p/>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
+ * <p/>
+ * <p/>
  * MainActivity for the project.
- *
  */
 public class MainActivity extends Activity {
 
@@ -57,6 +46,22 @@ public class MainActivity extends Activity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+
+        // Set the default values for switches
+        ((Switch) findViewById(R.id.dnd_enabled)).setChecked(AppPreferences.getInstance().isEnabled());
+        ((Switch) findViewById(R.id.ring_on_repeat)).setChecked(AppPreferences.getInstance().ringOnRepeatCall());
+        ((Switch) findViewById(R.id.ring_for_contacts)).setChecked(AppPreferences.getInstance().ringForContacts());
+        // Set the current time.
+        setButtonTime((Button) findViewById(R.id.start_time), AppPreferences.getInstance().getStartHour(22),
+                AppPreferences.getInstance().getStartMinute(0));
+        // Set the current time.
+        setButtonTime((Button) findViewById(R.id.end_time), AppPreferences.getInstance().getEndHour(6),
+                AppPreferences.getInstance().getEndMinute(0));
+
+        // Now set the listener for switches
+        ((Switch) findViewById(R.id.dnd_enabled)).setOnCheckedChangeListener(dndEnabledListener);
+        ((Switch) findViewById(R.id.ring_on_repeat)).setOnCheckedChangeListener(saveListener);
+        ((Switch) findViewById(R.id.ring_for_contacts)).setOnCheckedChangeListener(saveListener);
     }
 
     final CompoundButton.OnCheckedChangeListener dndEnabledListener = new CompoundButton.OnCheckedChangeListener() {
@@ -92,20 +97,10 @@ public class MainActivity extends Activity {
     };
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 
     private void saveAll() {
@@ -124,32 +119,6 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(getApplicationContext(), StartStopReceiver.class);
         intent.setAction("com.colossaldb.dnd.START_STOP");
         sendBroadcast(intent);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // First disable the setChecked for the switches
-        ((Switch) findViewById(R.id.dnd_enabled)).setOnCheckedChangeListener(null);
-        ((Switch) findViewById(R.id.ring_on_repeat)).setOnCheckedChangeListener(null);
-        ((Switch) findViewById(R.id.ring_for_contacts)).setOnCheckedChangeListener(null);
-
-        // Set the default value for enabled.
-        ((Switch) findViewById(R.id.dnd_enabled)).setChecked(AppPreferences.getInstance().isEnabled());
-        ((Switch) findViewById(R.id.ring_on_repeat)).setChecked(AppPreferences.getInstance().ringOnRepeatCall());
-        ((Switch) findViewById(R.id.ring_for_contacts)).setChecked(AppPreferences.getInstance().ringForContacts());
-        // Set the current time.
-        setButtonTime((Button) findViewById(R.id.start_time), AppPreferences.getInstance().getStartHour(22),
-                AppPreferences.getInstance().getStartMinute(0));
-        // Set the current time.
-        setButtonTime((Button) findViewById(R.id.end_time), AppPreferences.getInstance().getEndHour(6),
-                AppPreferences.getInstance().getEndMinute(0));
-
-        // Now re-enable the listener for switches
-        ((Switch) findViewById(R.id.dnd_enabled)).setOnCheckedChangeListener(dndEnabledListener);
-        ((Switch) findViewById(R.id.ring_on_repeat)).setOnCheckedChangeListener(saveListener);
-        ((Switch) findViewById(R.id.ring_for_contacts)).setOnCheckedChangeListener(saveListener);
     }
 
     @Override
@@ -203,7 +172,7 @@ public class MainActivity extends Activity {
      * A Simple time picker fragment to be used for changing time
      */
     public static class TimePickerFragment extends DialogFragment
-    implements TimePickerDialog.OnTimeSetListener {
+            implements TimePickerDialog.OnTimeSetListener {
 
         final boolean isStartTime;
         final int defaultHour;
