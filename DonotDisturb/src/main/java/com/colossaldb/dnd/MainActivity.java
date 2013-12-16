@@ -47,6 +47,13 @@ public class MainActivity extends Activity {
                     .commit();
         }
 
+        // Set the change listeners to be null.
+        // We don't want the change listener to fire and save default values
+        // (Will happen when the state is restored from savedInstanceState)
+        ((Switch) findViewById(R.id.dnd_enabled)).setOnCheckedChangeListener(null);
+        ((Switch) findViewById(R.id.ring_on_repeat)).setOnCheckedChangeListener(null);
+        ((Switch) findViewById(R.id.ring_for_contacts)).setOnCheckedChangeListener(null);
+
         // Set the default values for switches
         ((Switch) findViewById(R.id.dnd_enabled)).setChecked(AppPreferences.getInstance().isEnabled());
         ((Switch) findViewById(R.id.ring_on_repeat)).setChecked(AppPreferences.getInstance().ringOnRepeatCall());
