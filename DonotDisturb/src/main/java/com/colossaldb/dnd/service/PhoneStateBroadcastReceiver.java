@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.provider.CallLog;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-
 import com.colossaldb.dnd.MyApp;
 import com.colossaldb.dnd.prefs.AppPreferences;
 
@@ -37,6 +36,7 @@ import com.colossaldb.dnd.prefs.AppPreferences;
  *      - Next verify that the options are turned on
  *      - Verify that we are actually in the quiet time period.
  */
+
 /**
  * Created by Jayaprakash Pasala
  * Date:  12/11/13
@@ -48,9 +48,10 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
         Log.i("PhoneStateBroadcastReceiver", " State = " + state);
-        if (!AppPreferences.getInstance().isEnabled() ||
-                !(AppPreferences.getInstance().ringOnRepeatCall() && AppPreferences.getInstance().ringForContacts())
-                || !(StartStopReceiver.getDelay(AppPreferences.getInstance()).second))
+        if (!AppPreferences.getInstance().isEnabled() || // App is not enabled.
+                !(AppPreferences.getInstance().ringOnRepeatCall() || AppPreferences.getInstance().ringForContacts()) // Options are not enabled
+                || !(StartStopReceiver.getDelay(AppPreferences.getInstance()).second) // Not in quiet period
+                || (AppPreferences.getInstance().isRingerChangedManually())) // If ringer is changed, then we leave the user's preference in place
             return;
 
         if ("RINGING".equals(state)) {
@@ -92,10 +93,12 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
                 AppPreferences.getInstance().writeDebugEvent("Enabling Ringer Volume", "isContact: ["
                         + isContact + "] isSecondMissedCall [" + isSecondMissedCall + "]");
                 AudioManager audioManager = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
-                StartStopReceiver.enableNormal(audioManager);
+                StartStopReceiver.execDnd(context, audioManager, false);
             }
         } else if ("IDLE".equals(state)) {
-            StartStopReceiver.execDnd(MyApp.getAppContext(), AppPreferences.getInstance());
+            StartStopReceiver.execDnd(MyApp.getAppContext(),
+                    (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE),
+                    StartStopReceiver.getDelay(AppPreferences.getInstance()).second);
         }
     }
 }

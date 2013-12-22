@@ -46,10 +46,13 @@ public class MainActivity extends Activity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
         // Set the change listeners to be null.
         // We don't want the change listener to fire and save default values
-        // (Will happen when the state is restored from savedInstanceState)
         ((Switch) findViewById(R.id.dnd_enabled)).setOnCheckedChangeListener(null);
         ((Switch) findViewById(R.id.ring_on_repeat)).setOnCheckedChangeListener(null);
         ((Switch) findViewById(R.id.ring_for_contacts)).setOnCheckedChangeListener(null);

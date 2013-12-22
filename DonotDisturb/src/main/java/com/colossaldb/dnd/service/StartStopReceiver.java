@@ -3,13 +3,14 @@ package com.colossaldb.dnd.service;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.Pair;
-
 import com.colossaldb.dnd.prefs.AppPreferences;
 
 import java.util.Calendar;
@@ -39,9 +40,9 @@ import java.util.Date;
  *
  *  The decision to start/stop the muting of the phone is handled here.
  */
+
 /**
  * Created by Jayaprakash Pasala on 12/10/13.
- *
  */
 public class StartStopReceiver extends BroadcastReceiver {
 
@@ -60,22 +61,46 @@ public class StartStopReceiver extends BroadcastReceiver {
                     PendingIntent.FLAG_CANCEL_CURRENT);
 
             AppPreferences.getInstance().writeDebugEvent("App Disabled", "Canceled intents.");
+            AppPreferences.getInstance().clearRingerChangedManually();
             return;
         }
 
-        long delay = execDnd(context, pref);
-        reSchedule(context, delay);
-    }
-
-    protected static long execDnd(Context context, AppPreferences pref) {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         Pair<Long, Boolean> result = getDelay(pref);
-        if (result.second)
-            setToSilent(audioManager);
-        else
-            enableNormal(audioManager);
 
-        return result.first;
+        if (result.second && AudioManager.RINGER_MODE_CHANGED_ACTION.equals(intent.getAction())) {
+            // Volume was manually adjusted during quiet time.
+            AppPreferences.getInstance().markRingerChangedManually();
+            return;
+        }
+
+        execDnd(context, audioManager, result.second);
+        reSchedule(context, result.first);
+    }
+
+    protected static synchronized void execDnd(Context context, AudioManager audioManager, boolean silencePhone) {
+        // We have to first disable the broadcast receiver for ringer change
+        // or we will call this class again (and cannot distinguish between manual and automatic change).
+        ComponentName component = new ComponentName(context, StartStopReceiver.class);
+        int status = context.getPackageManager().getComponentEnabledSetting(component);
+        boolean disableStartStopReceiver = false;
+        if (status == PackageManager.COMPONENT_ENABLED_STATE_ENABLED || status == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
+            disableStartStopReceiver = true;
+            // Disable the broadcast receiver.
+            context.getPackageManager().setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        }
+
+        try {
+            if (silencePhone)
+                setToSilent(audioManager);
+            else
+                enableNormal(audioManager);
+        } finally {
+            if (disableStartStopReceiver) {
+                // Enable the broadcast receiver
+                context.getPackageManager().setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+            }
+        }
     }
 
     /**
@@ -83,8 +108,8 @@ public class StartStopReceiver extends BroadcastReceiver {
      *
      * @param pref - Application preference
      * @return - Delay in Milli Seconds and the action to take.
-     * true - silence the phone.
-     * false - restore the volume on phone.
+     *         true - silence the phone.
+     *         false - restore the volume on phone.
      */
     protected static Pair<Long, Boolean> getDelay(AppPreferences pref) {
         long delay;
@@ -155,7 +180,7 @@ public class StartStopReceiver extends BroadcastReceiver {
         AppPreferences.getInstance().logNextRun("Next alarm: " + new Date(System.currentTimeMillis() + delay));
     }
 
-    static void setToSilent(AudioManager am) {
+    private static void setToSilent(AudioManager am) {
         if (am.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
             am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
             AppPreferences.getInstance().writeDebugEvent("Ringer Silent", "Ringer set to silent");
@@ -165,7 +190,9 @@ public class StartStopReceiver extends BroadcastReceiver {
         }
     }
 
-    static void enableNormal(AudioManager am) {
+    private static void enableNormal(AudioManager am) {
+        // Clear these flags..
+        AppPreferences.getInstance().clearRingerChangedManually();
         if (am.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
             am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
             Log.i("StartStopReceiver", "Ringer is made normal");

@@ -3,7 +3,6 @@ package com.colossaldb.dnd.prefs;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,13 +27,13 @@ import java.util.Date;
  *
  *
  */
+
 /**
  * Created by Jayaprakash Pasala
  * Date:  12/10/13
  * Time:  10:28 AM
- *
+ * <p/>
  * A singleton class representing the options used by the application (and also has helper methods to write and read debug logs).
- *
  */
 public class AppPreferences {
     private static final String PREFERENCE_NAME = "AppPreferences";
@@ -236,5 +235,27 @@ public class AppPreferences {
             }
         }
         return events;
+    }
+
+    public void markRingerChangedManually() {
+        SharedPreferences.Editor ed = preferences.edit();
+        ed.putBoolean("VOLUME_MANUALLY_CHANGED", true);
+        ed.putLong("VOLUME_MANUALLY_CHANGED_TIME", System.currentTimeMillis());
+        ed.apply();
+        writeDebugEvent("Manual volume change", "Manual volume change during quiet period. The app will not change volume when the incoming call comes.");
+    }
+
+    public void clearRingerChangedManually() {
+        if (preferences.getBoolean("VOLUME_MANUALLY_CHANGED", false)) {
+            writeDebugEvent("Reset Manual volume change", "Resetting manual volume change flag");
+        }
+        SharedPreferences.Editor ed = preferences.edit();
+        ed.remove("VOLUME_MANUALLY_CHANGED");
+        ed.remove("VOLUME_MANUALLY_CHANGED_TIME");
+        ed.apply();
+    }
+
+    public boolean isRingerChangedManually() {
+        return preferences.getBoolean("VOLUME_MANUALLY_CHANGED", false);
     }
 }
