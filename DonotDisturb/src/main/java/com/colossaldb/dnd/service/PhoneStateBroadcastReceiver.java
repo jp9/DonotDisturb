@@ -90,12 +90,13 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
 
             if ((isContact && AppPreferences.getInstance().ringForContacts())
                     || (isSecondMissedCall && AppPreferences.getInstance().ringOnRepeatCall())) {
-                AppPreferences.getInstance().writeDebugEvent("Enabling Ringer Volume", "isContact: ["
+                AppPreferences.getInstance().writeDebugEvent("Ringer", "Unmuting ringer: isContact: ["
                         + isContact + "] isSecondMissedCall [" + isSecondMissedCall + "]");
                 AudioManager audioManager = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
                 StartStopReceiver.execDnd(context, audioManager, false);
             }
         } else if ("IDLE".equals(state)) {
+            AppPreferences.getInstance().writeDebugEvent("Ringer", "Resetting ringer.");
             StartStopReceiver.execDnd(MyApp.getAppContext(),
                     (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE),
                     StartStopReceiver.getDelay(AppPreferences.getInstance()).second);

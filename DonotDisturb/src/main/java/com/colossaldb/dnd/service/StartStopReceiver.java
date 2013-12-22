@@ -75,6 +75,7 @@ public class StartStopReceiver extends BroadcastReceiver {
         }
 
         execDnd(context, audioManager, result.second);
+        AppPreferences.getInstance().writeDebugEvent("StartStopReceiver", "Executed mute/unmute and set the alarm to run at scheduled time");
         reSchedule(context, result.first);
     }
 
@@ -118,7 +119,8 @@ public class StartStopReceiver extends BroadcastReceiver {
         Calendar cal = Calendar.getInstance();
         int hour = cal.get(Calendar.HOUR_OF_DAY);
         int min = cal.get(Calendar.MINUTE);
-        int currTime = hour * 60 + min;
+        int second = cal.get(Calendar.SECOND);
+        int currTime = hour * 60 + min + second;
 
         int startHour = pref.getStartHour(24);
         int startMin = pref.getStartMinute(60);
