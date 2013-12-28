@@ -67,8 +67,7 @@ public class AppPreferences {
      * @param appContext - Application context
      */
     public static synchronized void initialize(Context appContext) {
-        if (INSTANCE == null)
-            INSTANCE = new AppPreferences(appContext);
+        INSTANCE = new AppPreferences(appContext);
     }
 
     public static AppPreferences getInstance() {
