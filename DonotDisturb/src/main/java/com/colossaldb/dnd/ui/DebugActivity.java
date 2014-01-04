@@ -1,4 +1,4 @@
-package com.colossaldb.dnd;
+package com.colossaldb.dnd.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -20,6 +20,7 @@ import android.os.Bundle;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 /**
  * Created by Jayaprakash Pasala
  * Date:  12/12/13

@@ -119,8 +119,7 @@ public class StartStopReceiver extends BroadcastReceiver {
         Calendar cal = Calendar.getInstance();
         int hour = cal.get(Calendar.HOUR_OF_DAY);
         int min = cal.get(Calendar.MINUTE);
-        int second = cal.get(Calendar.SECOND);
-        int currTime = hour * 60 + min + second;
+        int currTime = hour * 60 + min;
 
         int startHour = pref.getStartHour(24);
         int startMin = pref.getStartMinute(60);

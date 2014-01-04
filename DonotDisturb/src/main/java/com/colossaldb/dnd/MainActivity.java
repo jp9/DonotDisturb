@@ -14,6 +14,7 @@ import android.widget.Switch;
 import android.widget.TimePicker;
 import com.colossaldb.dnd.prefs.AppPreferences;
 import com.colossaldb.dnd.service.StartStopReceiver;
+import com.colossaldb.dnd.ui.DebugActivity;
 
 /**
  * Copyright (C) 2013  Jayaprakash Pasala
@@ -32,6 +33,8 @@ import com.colossaldb.dnd.service.StartStopReceiver;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * <p/>
  * <p/>
+ * <p/>
+ * <p/>
  * MainActivity for the project.
  */
 public class MainActivity extends Activity {
@@ -48,6 +51,9 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * On resume, we set appropriate values for the fields in our activity.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -74,6 +80,9 @@ public class MainActivity extends Activity {
         ((Switch) findViewById(R.id.ring_for_contacts)).setOnCheckedChangeListener(saveListener);
     }
 
+    /**
+     * Listener to catch the turning on/off of the "Quiet Time Enabled" option.
+     */
     final CompoundButton.OnCheckedChangeListener dndEnabledListener = new CompoundButton.OnCheckedChangeListener() {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (!isChecked) {
@@ -113,6 +122,9 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    /**
+     * Save all the current options and broadcast to StartStopReceiver.
+     */
     private void saveAll() {
         boolean dndEnabled = ((Switch) findViewById(R.id.dnd_enabled)).isChecked();
         boolean ringOnRepeat = ((Switch) findViewById(R.id.ring_on_repeat)).isChecked();
@@ -154,6 +166,9 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Displayed the time picker dialog
+     */
     public void showTimePickerDialog(View view) {
         int hourMin = Integer.valueOf(view.getTag().toString());
         int hour = hourMin / 60;

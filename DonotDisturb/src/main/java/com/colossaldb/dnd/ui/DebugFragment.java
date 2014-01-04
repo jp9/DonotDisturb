@@ -1,4 +1,4 @@
-package com.colossaldb.dnd;
+package com.colossaldb.dnd.ui;
 
 import android.os.Bundle;
 import android.preference.Preference;
@@ -6,9 +6,8 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.Log;
-
+import com.colossaldb.dnd.R;
 import com.colossaldb.dnd.prefs.AppPreferences;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,11 +30,12 @@ import org.json.JSONObject;
  *
  *
  */
+
 /**
  * Created by Jayaprakash Pasala
  * Date:  12/12/13
  * Time:  11:01 PM
- *
+ * <p/>
  * Debug fragment displays the debug information.
  */
 public class DebugFragment extends PreferenceFragment {
@@ -62,6 +62,9 @@ public class DebugFragment extends PreferenceFragment {
         setPreferenceScreen(root);
     }
 
+    /**
+     * Get the past actions performed.
+     */
     Preference getPast(PreferenceManager preferenceManager) {
         PreferenceScreen past = preferenceManager.createPreferenceScreen(getActivity());
         if (past == null)
@@ -73,6 +76,9 @@ public class DebugFragment extends PreferenceFragment {
         return past;
     }
 
+    /**
+     * Get the errors.
+     */
     Preference getErrors(PreferenceManager preferenceManager) {
         PreferenceScreen errors = preferenceManager.createPreferenceScreen(getActivity());
         if (errors == null)
@@ -84,6 +90,9 @@ public class DebugFragment extends PreferenceFragment {
         return errors;
     }
 
+    /**
+     * Add the events to the preference screen
+     */
     private void addEventsToPreferenceScreen(PreferenceScreen screen, JSONArray events) {
         if (events == null || events.length() == 0) {
             screen.addPreference(failedPreference("No events"));
@@ -103,6 +112,9 @@ public class DebugFragment extends PreferenceFragment {
         }
     }
 
+    /**
+     * Future scheduled events (and related information - if available)
+     */
     Preference getFuture(PreferenceManager preferenceManager) {
         PreferenceScreen future = preferenceManager.createPreferenceScreen(getActivity());
         if (future == null)
@@ -122,6 +134,9 @@ public class DebugFragment extends PreferenceFragment {
         return p;
     }
 
+    /**
+     * Current debug information for display
+     */
     Preference getPresent(PreferenceManager preferenceManager) {
         PreferenceScreen present = preferenceManager.createPreferenceScreen(getActivity());
         if (present == null)

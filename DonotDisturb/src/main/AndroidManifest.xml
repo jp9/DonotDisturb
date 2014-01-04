@@ -33,7 +33,7 @@
         </activity>
 
         <activity
-                android:name="com.colossaldb.dnd.DebugActivity"
+                android:name=".ui.DebugActivity"
                 android:label="@string/action_debug">
         </activity>
 
