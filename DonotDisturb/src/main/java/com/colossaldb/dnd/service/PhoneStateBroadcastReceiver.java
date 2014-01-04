@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.provider.CallLog;
+import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.Pair;
@@ -96,36 +98,30 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
      * Is the phone call from a contact or is it a second call from same number in last 10 mins.
      */
     private Pair<Boolean, Boolean> isContactOrSecondCall(String number) {
-        boolean isContact = false;
-        boolean isSecondMissedCall = false;
+        boolean isContact;
+        boolean isSecondMissedCall;
         {
             long cutOffTime = System.currentTimeMillis() - 600 * 1000L;
             Cursor c = MyApp.getAppContext().getContentResolver().query(
-                    CallLog.Calls.CONTENT_URI, null,
+                    CallLog.Calls.CONTENT_URI, new String[]{CallLog.Calls.NUMBER},
                     CallLog.Calls.DATE + ">= ? AND " + CallLog.Calls.NUMBER + " = ? ", new String[]{cutOffTime + "", number},
                     CallLog.Calls.DEFAULT_SORT_ORDER);
-            if (c != null) {
-                while (c.moveToNext()) {
-                    String num = c.getString(c.getColumnIndex(CallLog.Calls.NUMBER));// for  number
-                    String name = c.getString(c.getColumnIndex(CallLog.Calls.CACHED_NAME));// for name
-                    if (num != null && name != null) {
-                        // This is a contact
-                        isContact = true;
-                    }
+            isSecondMissedCall = (c != null && c.moveToNext());
+            closeQuietly(c);
 
-                    long callTime = Long.parseLong(c.getString(c.getColumnIndex(CallLog.Calls.DATE)));
-                    if (callTime <= cutOffTime) {
-                        break;
-                    }
-
-                    int type = Integer.parseInt(c.getString(c.getColumnIndex(CallLog.Calls.TYPE)));
-                    if (!(CallLog.Calls.MISSED_TYPE == type || CallLog.Calls.INCOMING_TYPE == type))
-                        continue;
-
-                    isSecondMissedCall = true;
-                }
-            }
+            Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
+            c = MyApp.getAppContext().getContentResolver().query(uri, new String[]{ContactsContract.PhoneLookup.NUMBER}, null, null, null);
+            isContact = (c != null && c.moveToNext());
+            closeQuietly(c);
         }
         return new Pair<Boolean, Boolean>(isContact, isSecondMissedCall);
+    }
+
+    void closeQuietly(Cursor c) {
+        try {
+            if (c != null)
+                c.close();
+        } catch (Exception ignored) {
+        }
     }
 }
