@@ -68,13 +68,20 @@ public class StartStopReceiver extends BroadcastReceiver {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         Pair<Long, Boolean> result = getDelay(pref);
 
-        if (result.second && AudioManager.RINGER_MODE_CHANGED_ACTION.equals(intent.getAction())) {
+        if (AudioManager.RINGER_MODE_CHANGED_ACTION.equals(intent.getAction())) {
             // Volume was manually adjusted during quiet time.
-            AppPreferences.getInstance().markRingerChangedManually();
+            if (result.second)
+                AppPreferences.getInstance().markRingerChangedManually();
             return;
         }
 
-        execDnd(context, audioManager, result.second);
+        // Code written for readability ..
+        if (intent.getBooleanExtra("SettingsSaved", false)
+                && !result.second) {
+            // Only the settings changed, and don't change the phone mode, unless we are in quiet period.
+        } else {
+            execDnd(context, audioManager, result.second);
+        }
         AppPreferences.getInstance().writeDebugEvent("StartStopReceiver", "Executed mute/unmute and set the alarm to run at scheduled time");
         reSchedule(context, result.first);
     }

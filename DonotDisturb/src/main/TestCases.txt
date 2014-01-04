@@ -1,0 +1,38 @@
+Manual Test cases (Automate these):
+==================================
+
+Basic:
+------
+
+- Enable DND
+      - Make sure that the app turn to quiet at start of quiet period
+      - The app should set the ringer to normal at end of quiet period.
+
+- Enable DND
+     - Turn on Ringer for contacts.
+         - During quiet period, ring from a contact phone. The phone should ring.
+     - Turn off Ringer for contacts.
+         - During quiet period, ring from a contact phone. The phone should NOT ring.
+     - Turn on Ring for Repeat call (the option "Ring for contact" is OFF)
+         - During quiet period, ring from a contact phone. The phone should not ring the first time. The phone should ring the second time
+         - During quiet period, ring from a non contact phone. The phone should not ring the first time. The phone should ring the second time
+     - Turn on "Ring for Repeat" and "Ring for contacts"
+        - Make sure the ringer is enabled when a contact calls.
+        - Non contact calls: Don't ring the first time, but ring on second call.
+
+- Corner cases:
+     - During NON-quiet hours.
+        - Set the phone to mute. Is it settable to mute?
+            - "Enable ringer for contacts"
+                - Call from contact phone. The phone should NOT ring.
+            - "Enable ring on repeat"
+                - Call from non contact, two times. The phone should not ring.
+
+     - During quiet hours:
+        - Manually set the ringer on.
+            - Call from any number, should ring.
+                - After the call make sure that the ringer is still enabled (and NOT set to mute).
+
+
+
+

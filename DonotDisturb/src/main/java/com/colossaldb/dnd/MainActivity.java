@@ -140,6 +140,7 @@ public class MainActivity extends Activity {
         // Fire the broadcast to StartStopReceiver.
         Intent intent = new Intent(getApplicationContext(), StartStopReceiver.class);
         intent.setAction("com.colossaldb.dnd.START_STOP");
+        intent.putExtra("SettingsSaved", true);
         sendBroadcast(intent);
     }
 
