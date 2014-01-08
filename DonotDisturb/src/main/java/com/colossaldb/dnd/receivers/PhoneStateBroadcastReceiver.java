@@ -1,4 +1,4 @@
-package com.colossaldb.dnd.service;
+package com.colossaldb.dnd.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

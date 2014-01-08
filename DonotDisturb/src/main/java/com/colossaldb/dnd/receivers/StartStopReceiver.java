@@ -1,4 +1,4 @@
-package com.colossaldb.dnd.service;
+package com.colossaldb.dnd.receivers;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -68,15 +68,8 @@ public class StartStopReceiver extends BroadcastReceiver {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         Pair<Long, Boolean> result = getDelay(pref);
 
-        if (AudioManager.RINGER_MODE_CHANGED_ACTION.equals(intent.getAction())) {
-            // Volume was manually adjusted during quiet time.
-            if (result.second)
-                AppPreferences.getInstance().markRingerChangedManually();
-            return;
-        }
-
         // Code written for readability ..
-        if (intent.getBooleanExtra("SettingsSaved", false)
+        if (intent.getBooleanExtra(AppPreferences.SETTINGS_CHANGED_KEY, false)
                 && !result.second) {
             // Only the settings changed, and don't change the phone mode, unless we are in quiet period.
         } else {
@@ -168,13 +161,14 @@ public class StartStopReceiver extends BroadcastReceiver {
      */
     private synchronized void reSchedule(Context context, long delay) {
         Intent intent = new Intent(context.getApplicationContext(), StartStopReceiver.class);
-        intent.setAction("com.colossaldb.dnd.START_STOP");
+        intent.setAction(AppPreferences.BROADCAST_START_STOP_ACTION);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
                 0,
                 intent,
                 PendingIntent.FLAG_NO_CREATE);
+
         if (pendingIntent == null) {
             pendingIntent = PendingIntent.getBroadcast(
                     context,

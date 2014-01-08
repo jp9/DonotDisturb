@@ -41,6 +41,9 @@ public class AppPreferences {
 
     private static final int MAX_LIST_SIZE = 20;
 
+    // Broadcast
+    public static final String BROADCAST_START_STOP_ACTION = "com.colossaldb.dnd.START_STOP";
+
     // Keys
     private static final String START_HOUR = "sh";
     private static final String START_MIN = "sm";
@@ -49,17 +52,19 @@ public class AppPreferences {
     private static final String DND_ENABLED = "dnd_enabled";
     private static final String RING_ON_REPEAT = "ring_on_repeat";
     private static final String RING_FOR_CONTACTS = "ring_for_contacts";
+
     public static final String NEXT_ALARM_KEY = "NextAlarm";
     public static final String ERROR_EVENTS_KEY = "ErrorEvents";
     public static final String DEBUG_EVENTS_KEY = "DebugEvents";
     public static final String TITLE_KEY = "title";
     public static final String DETAIL_KEY = "detail";
     public static final String TIMESTAMP_KEY = "ts";
+    public static final String SETTINGS_CHANGED_KEY = "SettingsChanged";
 
     private static volatile AppPreferences INSTANCE = null;
 
-    private SharedPreferences preferences;
-    private SharedPreferences debugPreferences;
+    private final SharedPreferences preferences;
+    private final SharedPreferences debugPreferences;
 
     /**
      * Expected to be called only once during the full lifecycle.

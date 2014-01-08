@@ -38,17 +38,22 @@
                 android:label="@string/action_debug">
         </activity>
 
-        <receiver android:name=".service.PhoneStateBroadcastReceiver">
+        <receiver android:name=".receivers.PhoneStateBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE"/>
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".service.StartStopReceiver">
+        <receiver android:name=".receivers.StartStopReceiver">
             <intent-filter>
                 <!-- Keep this list in sync with broadcast subscriptions in StartStopReceiver -->
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="com.colossaldb.dnd.START_STOP"/>
+                <action android:name="android.media.RINGER_MODE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receivers.RingerVolumeChangedReceiver">
+            <intent-filter>
                 <action android:name="android.media.RINGER_MODE_CHANGED"/>
             </intent-filter>
         </receiver>

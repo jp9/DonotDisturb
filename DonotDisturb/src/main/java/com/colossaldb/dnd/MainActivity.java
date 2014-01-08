@@ -13,7 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TimePicker;
 import com.colossaldb.dnd.prefs.AppPreferences;
-import com.colossaldb.dnd.service.StartStopReceiver;
+import com.colossaldb.dnd.receivers.StartStopReceiver;
 import com.colossaldb.dnd.ui.DebugActivity;
 
 /**
@@ -140,7 +140,7 @@ public class MainActivity extends Activity {
         // Fire the broadcast to StartStopReceiver.
         Intent intent = new Intent(getApplicationContext(), StartStopReceiver.class);
         intent.setAction("com.colossaldb.dnd.START_STOP");
-        intent.putExtra("SettingsSaved", true);
+        intent.putExtra(AppPreferences.SETTINGS_CHANGED_KEY, true);
         sendBroadcast(intent);
     }
 
