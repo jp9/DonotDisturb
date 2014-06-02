@@ -52,11 +52,6 @@
                 <action android:name="android.media.RINGER_MODE_CHANGED"/>
             </intent-filter>
         </receiver>
-        <receiver android:name=".receivers.RingerVolumeChangedReceiver">
-            <intent-filter>
-                <action android:name="android.media.RINGER_MODE_CHANGED"/>
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

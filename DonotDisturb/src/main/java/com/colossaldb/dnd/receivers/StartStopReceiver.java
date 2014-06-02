@@ -68,6 +68,16 @@ public class StartStopReceiver extends BroadcastReceiver {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         Pair<Long, Boolean> result = getDelay(pref);
 
+        // If ringer was changed during the quiet period then note it.
+        if (AudioManager.RINGER_MODE_CHANGED_ACTION.equals(intent.getAction())) {
+            // Volume was manually adjusted during quiet time.
+            if (result.second)
+                AppPreferences.getInstance().markRingerChangedManually();
+
+            //Finished handling action - return here.
+            return;
+        }
+
         // Code written for readability ..
         if (intent.getBooleanExtra(AppPreferences.SETTINGS_CHANGED_KEY, false)
                 && !result.second) {
@@ -75,7 +85,8 @@ public class StartStopReceiver extends BroadcastReceiver {
         } else {
             execDnd(context, audioManager, result.second);
         }
-        AppPreferences.getInstance().writeDebugEvent("StartStopReceiver", "Executed mute/unmute and set the alarm to run at scheduled time");
+        AppPreferences.getInstance().writeDebugEvent("StartStopReceiver",
+                "Executed mute/unmute and set the alarm to run at scheduled time. Next run in: " + (result.first / 1000L) + " seconds");
         reSchedule(context, result.first);
     }
 
@@ -135,8 +146,8 @@ public class StartStopReceiver extends BroadcastReceiver {
          *     case b: 10 am to 5 pm.
          */
         if (endTime > startTime ?
-                ((currTime > startTime) && (currTime < endTime)) :
-                ((currTime > startTime) || (currTime < endTime))) {
+                ((currTime >= startTime) && (currTime < endTime)) :
+                ((currTime >= startTime) || (currTime < endTime))) {
             shouldSilence = true;
             delay = (endTime - (hour * 60 + min)) * 60 * 1000L;
         } else {
