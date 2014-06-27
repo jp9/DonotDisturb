@@ -33,6 +33,9 @@ Basic:
             - Call from any number, should ring.
                 - After the call make sure that the ringer is still enabled (and NOT set to mute).
 
+     - Upgrade the app
+        - Don't open the upgraded app, make sure that the new app sets (and unsets) the ringer to mute.
+
 
 
 

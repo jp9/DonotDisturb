@@ -39,7 +39,7 @@ public class AppPreferences {
     private static final String PREFERENCE_NAME = "AppPreferences";
     private static final String DEBUG_PREF_NAME = "DebugAppInfo";
 
-    private static final int MAX_LIST_SIZE = 20;
+    private static final int MAX_LIST_SIZE = 50;
 
     // Broadcast
     public static final String BROADCAST_START_STOP_ACTION = "com.colossaldb.dnd.START_STOP";

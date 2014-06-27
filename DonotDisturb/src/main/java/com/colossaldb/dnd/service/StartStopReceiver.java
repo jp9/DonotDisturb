@@ -1,4 +1,4 @@
-package com.colossaldb.dnd.receivers;
+package com.colossaldb.dnd.service;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

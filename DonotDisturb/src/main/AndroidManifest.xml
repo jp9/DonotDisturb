@@ -38,14 +38,19 @@
                 android:label="@string/action_debug">
         </activity>
 
-        <receiver android:name=".receivers.PhoneStateBroadcastReceiver">
-            <intent-filter>
+        <!-- Dont change the receiver name. This will break upgrade scenario
+             The newly changed name will not receive the broadcast signal from the alarm
+             set by the previous version.
+        -->
+        <receiver android:name=".service.PhoneStateBroadcastReceiver">
+        <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE"/>
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receivers.StartStopReceiver">
-            <intent-filter>
+        <!-- Don't change the receiver name -->
+        <receiver android:name=".service.StartStopReceiver">
+        <intent-filter>
                 <!-- Keep this list in sync with broadcast subscriptions in StartStopReceiver -->
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="com.colossaldb.dnd.START_STOP"/>

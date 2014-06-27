@@ -13,7 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TimePicker;
 import com.colossaldb.dnd.prefs.AppPreferences;
-import com.colossaldb.dnd.receivers.StartStopReceiver;
+import com.colossaldb.dnd.service.StartStopReceiver;
 import com.colossaldb.dnd.ui.DebugActivity;
 
 /**
