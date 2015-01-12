@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.Pair;
@@ -17,7 +18,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Copyright (C) 2013  Jayaprakash Pasala
+ * Copyright (C) 2015 Jayaprakash Pasala
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +46,22 @@ import java.util.Date;
  * Created by Jayaprakash Pasala on 12/10/13.
  */
 public class StartStopReceiver extends BroadcastReceiver {
+    // Serious hack.
+    // This has to with timing issue on the execution of broadcast event w.r.t to volume change
+
+    /**
+     * How does this happen?
+     * 1. We first unsubscribe to volume change event
+     * 2. We change the volume
+     * 3. Start unsubscribing to volume change.
+     * <p/>
+     * The problem is that in step 2, there is no guarantee that the volume change related
+     * broadcast events will be run before step 3.
+     * <p/>
+     * So, step needs to run after a short time (say 2 seconds)
+     */
+    //private static final AtomicLong LAST_CHANGE_TO_QUIET = new AtomicLong(0);
+    //private static final long HACK_INTERVAL_TO_SKIP = 2000; // 2 seconds.
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -70,8 +87,12 @@ public class StartStopReceiver extends BroadcastReceiver {
 
         // If ringer was changed during the quiet period then note it.
         if (AudioManager.RINGER_MODE_CHANGED_ACTION.equals(intent.getAction())) {
+            AppPreferences.getInstance().writeDebugEvent("StartStopReceiver",
+                    "Intent info: pkg: " + intent.getPackage() + " datastr: " + intent.getDataString() +
+                            "scheme: " + intent.getScheme() + " tostr:" + intent.toString() + " extras: " + intent.getExtras().toString());
+
             // Volume was manually adjusted during quiet time.
-            if (result.second)
+            if (result.second) //  && (System.currentTimeMillis() - LAST_CHANGE_TO_QUIET.get())> HACK_INTERVAL_TO_SKIP
                 AppPreferences.getInstance().markRingerChangedManually();
 
             //Finished handling action - return here.
@@ -82,11 +103,14 @@ public class StartStopReceiver extends BroadcastReceiver {
         if (intent.getBooleanExtra(AppPreferences.SETTINGS_CHANGED_KEY, false)
                 && !result.second) {
             // Only the settings changed, and don't change the phone mode, unless we are in quiet period.
+            AppPreferences.getInstance().writeDebugEvent("StartStopReceiver",
+                    "Not calling dnd");
         } else {
+            AppPreferences.getInstance().writeDebugEvent("StartStopReceiver",
+                    "Executed  [" + (result.second ? "mute" : "unmute") + "] and set the alarm to run at scheduled time. Next run in: " + (result.first / 1000L) + " seconds");
+
             execDnd(context, audioManager, result.second);
         }
-        AppPreferences.getInstance().writeDebugEvent("StartStopReceiver",
-                "Executed mute/unmute and set the alarm to run at scheduled time. Next run in: " + (result.first / 1000L) + " seconds");
         reSchedule(context, result.first);
     }
 
@@ -96,10 +120,14 @@ public class StartStopReceiver extends BroadcastReceiver {
         ComponentName component = new ComponentName(context, StartStopReceiver.class);
         int status = context.getPackageManager().getComponentEnabledSetting(component);
         boolean disableStartStopReceiver = false;
+        AppPreferences.getInstance().writeDebugEvent("StartStopReceiver", "PackageManager status :" + status);
         if (status == PackageManager.COMPONENT_ENABLED_STATE_ENABLED || status == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
             disableStartStopReceiver = true;
             // Disable the broadcast receiver.
             context.getPackageManager().setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+            AppPreferences.getInstance().writeDebugEvent("StartStopReceiver", "Disabled the start stop receiver");
+        } else {
+            AppPreferences.getInstance().writeDebugEvent("StartStopReceiver", "Not disabling the start stop receiver");
         }
 
         try {
@@ -109,8 +137,8 @@ public class StartStopReceiver extends BroadcastReceiver {
                 enableNormal(audioManager);
         } finally {
             if (disableStartStopReceiver) {
+                new Handler().postDelayed(new MyHandler(context), 3000);
                 // Enable the broadcast receiver
-                context.getPackageManager().setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
             }
         }
     }
@@ -193,9 +221,27 @@ public class StartStopReceiver extends BroadcastReceiver {
         AppPreferences.getInstance().logNextRun("Next alarm: " + new Date(System.currentTimeMillis() + delay));
     }
 
-    private static void setToSilent(AudioManager am) {
+    private static void setToSilent(final AudioManager am) {
         if (am.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
             am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+            // hack as hell.
+            if (android.os.Build.VERSION.SDK_INT == 21) {
+                /**
+                 * This is a serious not recommended hack. Unfortunately, if this removed the value of
+                 * the app is lost in Lollipop.
+                 * We have to call the silent twice or the volume is not silenced.
+                 * Hate the hack but need it till Google fixes setRinger()
+                 */
+                AppPreferences.getInstance().writeDebugEvent("Ringer Silent", "Scheduled one more for Lollipop");
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        AppPreferences.getInstance().writeDebugEvent("Ringer Silent", "Executed one more for Lollipop");
+                        am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    }
+                }, 1000);
+            }
+            //LAST_CHANGE_TO_QUIET.set(System.currentTimeMillis());
             AppPreferences.getInstance().writeDebugEvent("Ringer Silent", "Ringer set to silent");
             Log.i("StartStopReceiver", "Ringer is made silent");
         } else {
@@ -212,6 +258,21 @@ public class StartStopReceiver extends BroadcastReceiver {
             AppPreferences.getInstance().writeDebugEvent("Ringer normal", "Ringer set to normal");
         } else {
             Log.i("StartStopReceiver", "Ringer is already set to normal");
+        }
+    }
+
+    public static class MyHandler implements Runnable {
+        private final Context context;
+
+        MyHandler(Context ctxt) {
+            this.context = ctxt;
+        }
+
+        @Override
+        public void run() {
+            ComponentName component = new ComponentName(context, StartStopReceiver.class);
+            context.getPackageManager().setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+            AppPreferences.getInstance().writeDebugEvent("StartStopReceiver", "Enabled the start stop receiver");
         }
     }
 }

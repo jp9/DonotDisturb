@@ -16,7 +16,9 @@
     <string name="contacts">Ring for contacts</string>
     <string name="am">AM</string>
     <string name="pm">PM</string>
-    <string name="ring_on_repeat_desc">Your phone will ring if you receive a phone call from the same number twice within a span of 10 minutes</string>
+    <string name="ring_on_repeat_desc">Your phone will ring if you receive a phone call from the same number twice
+        within a span of 10 minutes
+    </string>
     <string name="enable_ringer">Ringer is on mute, do you want to unmute?</string>
     <string name="unmute">Unmute</string>
     <string name="past">Past</string>
@@ -25,7 +27,7 @@
     <string name="errors">Errors</string>
     <string name="action_debug">Debug</string>
     <string name="action_about">About</string>
-    <string name="about_desc">Copyright Jayaprakash Pasala</string>
+    <string name="about_desc">Copyright Jayaprakash Pasala. Version 1.7</string>
     <string name="ring_for_contacts_desc">Ring the phone when a person from address book calls</string>
     <string-array name="silence_options_2">
         <item>Always</item>

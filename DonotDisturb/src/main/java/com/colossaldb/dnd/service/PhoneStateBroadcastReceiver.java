@@ -48,18 +48,22 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        long startTime = System.nanoTime();
         String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
         Log.i("PhoneStateBroadcastReceiver", " State = " + state);
+        AppPreferences.getInstance().writeDebugEvent("BroadcastReceiver", "Received intent");
         if (shouldSkip())
             return;
 
-        if ("RINGING".equals(state)) {
+        if (TelephonyManager.EXTRA_STATE_RINGING.equals(state)) {
+            AppPreferences.getInstance().writeDebugEvent("BroadcastReceiver", "Got ringing event");
             String number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
 
             Pair<Boolean, Boolean> contactOrSecondCall = isContactOrSecondCall(number);
             boolean isContact = contactOrSecondCall.first;
             boolean isSecondMissedCall = contactOrSecondCall.second;
 
+            AppPreferences.getInstance().writeDebugEvent("BroadcastReceiver", "Is Contact [" + isContact + "] Is Second Missed call [" + isSecondMissedCall + "]");
             if ((isContact && AppPreferences.getInstance().ringForContacts())
                     || (isSecondMissedCall && AppPreferences.getInstance().ringOnRepeatCall())) {
                 logUnmutingRinger(isContact, isSecondMissedCall);
@@ -67,13 +71,17 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
                 StartStopReceiver.execDnd(context,
                         (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE),
                         false);
+            } else {
+                AppPreferences.getInstance().writeDebugEvent("BroadcastReceiver", "Not unmuting... condition not satisfied");
             }
-        } else if ("IDLE".equals(state)) {
-            AppPreferences.getInstance().writeDebugEvent("Ringer", "Resetting ringer.");
+        } else if (TelephonyManager.EXTRA_STATE_IDLE.equals(state)) {
+            AppPreferences.getInstance().writeDebugEvent("BroadcastReceiver", "State Idle. Resetting ringer.");
             StartStopReceiver.execDnd(MyApp.getAppContext(),
                     (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE),
                     StartStopReceiver.getDelay(AppPreferences.getInstance()).second);
         }
+        long endTime = System.nanoTime();
+        AppPreferences.getInstance().writeDebugEvent("BroadcastReceiver", "Total time for execution [ms] : " + ((endTime - startTime) / 1000000L));
     }
 
     /**
@@ -88,10 +96,18 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
      * Whether we should skip trying to mute or unmute the ringer.
      */
     private boolean shouldSkip() {
-        return !AppPreferences.getInstance().isEnabled() || // App is not enabled.
-                !(AppPreferences.getInstance().ringOnRepeatCall() || AppPreferences.getInstance().ringForContacts()) // Options are not enabled
-                || !(StartStopReceiver.getDelay(AppPreferences.getInstance()).second) // Not in quiet period
-                || (AppPreferences.getInstance().isRingerChangedManually()); // If ringer is changed, then we leave the user's preference in place
+        boolean isAppEnabled = AppPreferences.getInstance().isEnabled();
+        boolean areOptionsEnabled = (AppPreferences.getInstance().ringOnRepeatCall() || AppPreferences.getInstance().ringForContacts());
+        boolean inQuietPeriod = (StartStopReceiver.getDelay(AppPreferences.getInstance()).second);
+        boolean manualRingerChange = (AppPreferences.getInstance().isRingerChangedManually());
+
+        boolean shouldSkip = !isAppEnabled  // App is not enabled.
+                || !areOptionsEnabled // Options are not enabled
+                || !inQuietPeriod // Not in quiet period
+                || manualRingerChange; // If ringer is changed, then we leave the user's preference in place
+        AppPreferences.getInstance().writeDebugEvent("Should skip event:[" + shouldSkip + "]", "Is app enabled [" + isAppEnabled + "], are options enabled: ["
+                + areOptionsEnabled + "], inQuietPeriod : [" + inQuietPeriod + "], manualRingerChange [" + manualRingerChange + "]");
+        return shouldSkip;
     }
 
     /**

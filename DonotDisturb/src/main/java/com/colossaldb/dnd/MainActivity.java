@@ -87,7 +87,7 @@ public class MainActivity extends Activity {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (!isChecked) {
                 AudioManager audioManager = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
-                if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
+                if (audioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL) {
                     // Use the Builder class for convenient dialog construction
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setMessage(R.string.enable_ringer)

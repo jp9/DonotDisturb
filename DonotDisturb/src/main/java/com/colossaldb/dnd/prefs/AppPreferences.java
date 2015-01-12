@@ -7,6 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -39,7 +41,7 @@ public class AppPreferences {
     private static final String PREFERENCE_NAME = "AppPreferences";
     private static final String DEBUG_PREF_NAME = "DebugAppInfo";
 
-    private static final int MAX_LIST_SIZE = 50;
+    private static final int MAX_LIST_SIZE = 250;
 
     // Broadcast
     public static final String BROADCAST_START_STOP_ACTION = "com.colossaldb.dnd.START_STOP";
@@ -62,6 +64,8 @@ public class AppPreferences {
     public static final String SETTINGS_CHANGED_KEY = "SettingsChanged";
 
     private static volatile AppPreferences INSTANCE = null;
+    //private static JSONArray LOCAL_STORE = new JSONArray();
+    private static final DateFormat DF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     private final SharedPreferences preferences;
     private final SharedPreferences debugPreferences;
@@ -168,6 +172,7 @@ public class AppPreferences {
     }
 
     public JSONArray getDebugEvents() {
+        //return LOCAL_STORE; //getJSONArray(debugPreferences, DEBUG_EVENTS_KEY);
         return getJSONArray(debugPreferences, DEBUG_EVENTS_KEY);
     }
 
@@ -206,9 +211,10 @@ public class AppPreferences {
     }
 
     private static void writeToPrefList(SharedPreferences preferences, String listKey, String title, String detail) throws JSONException {
+        //JSONArray events = LOCAL_STORE ;//getJSONArray(preferences, listKey);
         JSONArray events = getJSONArray(preferences, listKey);
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(TIMESTAMP_KEY, new Date(System.currentTimeMillis()).toString());
+        jsonObject.put(TIMESTAMP_KEY, DF.format(new Date(System.currentTimeMillis())));
         jsonObject.put(TITLE_KEY, title);
         jsonObject.put(DETAIL_KEY, detail);
         events.put(jsonObject);
@@ -221,6 +227,7 @@ public class AppPreferences {
             events = newArray;
         }
 
+        //LOCAL_STORE = events;
         preferences.edit().putString(listKey, events.toString()).apply();
     }
 
