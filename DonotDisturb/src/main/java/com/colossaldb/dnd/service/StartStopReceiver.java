@@ -46,23 +46,9 @@ import java.util.Date;
  * Created by Jayaprakash Pasala on 12/10/13.
  */
 public class StartStopReceiver extends BroadcastReceiver {
-    // Serious hack.
-    // This has to with timing issue on the execution of broadcast event w.r.t to volume change
 
-    /**
-     * How does this happen?
-     * 1. We first unsubscribe to volume change event
-     * 2. We change the volume
-     * 3. Start unsubscribing to volume change.
-     * <p/>
-     * The problem is that in step 2, there is no guarantee that the volume change related
-     * broadcast events will be run before step 3.
-     * <p/>
-     * So, step needs to run after a short time (say 2 seconds)
-     */
-    //private static final AtomicLong LAST_CHANGE_TO_QUIET = new AtomicLong(0);
-    //private static final long HACK_INTERVAL_TO_SKIP = 2000; // 2 seconds.
-
+    private static final long TIME_DELAY_TO_SET_RINGER = 200L; // In milli seconds
+    private static final long TIME_DELAY_TO_ENABLE_RECEIVER = 3000L; // In milli seconds
     @Override
     public void onReceive(final Context context, Intent intent) {
         AppPreferences pref = AppPreferences.getInstance();
@@ -114,10 +100,10 @@ public class StartStopReceiver extends BroadcastReceiver {
         reSchedule(context, result.first);
     }
 
-    protected static synchronized void execDnd(Context context, AudioManager audioManager, boolean silencePhone) {
+    protected static synchronized void execDnd(final Context context, AudioManager audioManager, boolean silencePhone) {
         // We have to first disable the broadcast receiver for ringer change
         // or we will call this class again (and cannot distinguish between manual and automatic change).
-        ComponentName component = new ComponentName(context, StartStopReceiver.class);
+        final ComponentName component = new ComponentName(context, StartStopReceiver.class);
         int status = context.getPackageManager().getComponentEnabledSetting(component);
         boolean disableStartStopReceiver = false;
         AppPreferences.getInstance().writeDebugEvent("StartStopReceiver", "PackageManager status :" + status);
@@ -137,8 +123,14 @@ public class StartStopReceiver extends BroadcastReceiver {
                 enableNormal(audioManager);
         } finally {
             if (disableStartStopReceiver) {
-                new Handler().postDelayed(new MyHandler(context), 3000);
                 // Enable the broadcast receiver
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        context.getPackageManager().setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+                        AppPreferences.getInstance().writeDebugEvent("StartStopReceiver", "Enabled the start stop receiver");
+                    }
+                }, TIME_DELAY_TO_ENABLE_RECEIVER);
             }
         }
     }
@@ -224,7 +216,7 @@ public class StartStopReceiver extends BroadcastReceiver {
     private static void setToSilent(final AudioManager am) {
         if (am.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
             am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-            // hack as hell.
+            // hack as hell for lollipop bug.
             if (android.os.Build.VERSION.SDK_INT == 21) {
                 /**
                  * This is a serious not recommended hack. Unfortunately, if this removed the value of
@@ -239,7 +231,7 @@ public class StartStopReceiver extends BroadcastReceiver {
                         AppPreferences.getInstance().writeDebugEvent("Ringer Silent", "Executed one more for Lollipop");
                         am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                     }
-                }, 1000);
+                }, TIME_DELAY_TO_SET_RINGER);
             }
             //LAST_CHANGE_TO_QUIET.set(System.currentTimeMillis());
             AppPreferences.getInstance().writeDebugEvent("Ringer Silent", "Ringer set to silent");
@@ -258,21 +250,6 @@ public class StartStopReceiver extends BroadcastReceiver {
             AppPreferences.getInstance().writeDebugEvent("Ringer normal", "Ringer set to normal");
         } else {
             Log.i("StartStopReceiver", "Ringer is already set to normal");
-        }
-    }
-
-    public static class MyHandler implements Runnable {
-        private final Context context;
-
-        MyHandler(Context ctxt) {
-            this.context = ctxt;
-        }
-
-        @Override
-        public void run() {
-            ComponentName component = new ComponentName(context, StartStopReceiver.class);
-            context.getPackageManager().setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-            AppPreferences.getInstance().writeDebugEvent("StartStopReceiver", "Enabled the start stop receiver");
         }
     }
 }
