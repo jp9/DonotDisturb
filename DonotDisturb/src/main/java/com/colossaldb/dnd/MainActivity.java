@@ -68,10 +68,10 @@ public class MainActivity extends Activity {
         ((Switch) findViewById(R.id.ring_on_repeat)).setChecked(AppPreferences.getInstance().ringOnRepeatCall());
         ((Switch) findViewById(R.id.ring_for_contacts)).setChecked(AppPreferences.getInstance().ringForContacts());
         // Set the current time.
-        setButtonTime((Button) findViewById(R.id.start_time), AppPreferences.getInstance().getStartHour(22),
+        setButtonTime(getApplicationContext(), (Button) findViewById(R.id.start_time), AppPreferences.getInstance().getStartHour(22),
                 AppPreferences.getInstance().getStartMinute(0));
         // Set the current time.
-        setButtonTime((Button) findViewById(R.id.end_time), AppPreferences.getInstance().getEndHour(6),
+        setButtonTime(getApplicationContext(), (Button) findViewById(R.id.end_time), AppPreferences.getInstance().getEndHour(6),
                 AppPreferences.getInstance().getEndMinute(0));
 
         // Now set the listener for switches
@@ -86,14 +86,14 @@ public class MainActivity extends Activity {
     final CompoundButton.OnCheckedChangeListener dndEnabledListener = new CompoundButton.OnCheckedChangeListener() {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (!isChecked) {
-                AudioManager audioManager = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
+                AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                 if (audioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL) {
                     // Use the Builder class for convenient dialog construction
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setMessage(R.string.enable_ringer)
                             .setPositiveButton(R.string.unmute, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    AudioManager am = (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE);
+                                    AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                                     am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
                                 }
                             })
@@ -175,7 +175,8 @@ public class MainActivity extends Activity {
         int hour = hourMin / 60;
         int min = hourMin % 60;
         boolean isStart = (view.getId() == R.id.start_time);
-        DialogFragment newFragment = new TimePickerFragment(view.getId(), isStart, hour, min);
+        TimePickerFragment newFragment = new TimePickerFragment();
+        newFragment.setLocalValues(view.getId(), isStart, hour, min);
         newFragment.show(getFragmentManager(), "timePicker");
     }
 
@@ -200,12 +201,14 @@ public class MainActivity extends Activity {
     public static class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
 
-        final boolean isStartTime;
-        final int defaultHour;
-        final int defaultMin;
-        final int buttonId;
+        boolean isStartTime;
+        int defaultHour;
+        int defaultMin;
+        int buttonId;
 
-        TimePickerFragment(int buttonId, boolean isStartTime, int hour, int min) {
+        public TimePickerFragment() {}
+
+        void setLocalValues(int buttonId, boolean isStartTime, int hour, int min) {
             this.buttonId = buttonId;
             this.isStartTime = isStartTime;
             this.defaultHour = hour;
@@ -216,7 +219,7 @@ public class MainActivity extends Activity {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Create a new instance of TimePickerDialog and return it
             return new TimePickerDialog(getActivity(), this, this.defaultHour, this.defaultMin,
-                    DateFormat.is24HourFormat(MyApp.getAppContext()));
+                    DateFormat.is24HourFormat(this.getActivity().getApplicationContext()));
         }
 
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -229,16 +232,16 @@ public class MainActivity extends Activity {
                 AppPreferences.getInstance().setEndTime(hourOfDay, minute);
             }
             Button b = (Button) getActivity().findViewById(buttonId);
-            setButtonTime(b, hourOfDay, minute);
+            setButtonTime(getActivity().getApplicationContext(), b, hourOfDay, minute);
 
             // Fire the broadcast to StartStopReceiver.
-            Intent intent = new Intent(MyApp.getAppContext(), StartStopReceiver.class);
+            Intent intent = new Intent(getActivity().getApplicationContext(), StartStopReceiver.class);
             intent.setAction(AppPreferences.BROADCAST_START_STOP_ACTION);
-            MyApp.getAppContext().sendBroadcast(intent);
+            getActivity().getApplicationContext().sendBroadcast(intent);
         }
     }
 
-    private static void setButtonTime(Button b, int hourOfDay, int minute) {
+    private static void setButtonTime(Context context, Button b, int hourOfDay, int minute) {
         if (b == null)
             return;
 
@@ -249,7 +252,7 @@ public class MainActivity extends Activity {
             hourOfDay = hourOfDay == 12 ? 12 : hourOfDay - 12;
         }
 
-        b.setText(String.format("%2d:%02d %s", hourOfDay, minute, MyApp.getAppContext().getString(isAM ? R.string.am : R.string.pm)));
+        b.setText(String.format("%2d:%02d %s", hourOfDay, minute, context.getString(isAM ? R.string.am : R.string.pm)));
     }
 
 }

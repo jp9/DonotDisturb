@@ -44,6 +44,7 @@ import java.util.Date;
 
 /**
  * Created by Jayaprakash Pasala on 12/10/13.
+ *
  */
 public class StartStopReceiver extends BroadcastReceiver {
 
@@ -209,7 +210,8 @@ public class StartStopReceiver extends BroadcastReceiver {
         }
 
         AlarmManager alarmManager = (AlarmManager) (context.getSystemService(Context.ALARM_SERVICE));
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + delay, pendingIntent);
+        // 10 Seconds of window - Give or take a few seconds.
+        alarmManager.setWindow(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + delay, 10000, pendingIntent);
         AppPreferences.getInstance().logNextRun("Next alarm: " + new Date(System.currentTimeMillis() + delay));
     }
 

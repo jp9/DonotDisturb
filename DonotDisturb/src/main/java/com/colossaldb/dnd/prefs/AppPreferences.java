@@ -1,5 +1,6 @@
 package com.colossaldb.dnd.prefs;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -55,9 +56,9 @@ public class AppPreferences {
     private static final String RING_ON_REPEAT = "ring_on_repeat";
     private static final String RING_FOR_CONTACTS = "ring_for_contacts";
 
-    public static final String NEXT_ALARM_KEY = "NextAlarm";
-    public static final String ERROR_EVENTS_KEY = "ErrorEvents";
-    public static final String DEBUG_EVENTS_KEY = "DebugEvents";
+    private static final String NEXT_ALARM_KEY = "NextAlarm";
+    private static final String ERROR_EVENTS_KEY = "ErrorEvents";
+    private static final String DEBUG_EVENTS_KEY = "DebugEvents";
     public static final String TITLE_KEY = "title";
     public static final String DETAIL_KEY = "detail";
     public static final String TIMESTAMP_KEY = "ts";
@@ -131,6 +132,7 @@ public class AppPreferences {
         e.apply();
     }
 
+    @SuppressLint("Assert")
     public void save(boolean dndEnabled, int startHour, int startMin, int endHour, int endMin,
                      boolean ringOnRepeat, boolean ringForContacts) {
         assert startHour >= 0 && startHour < 24;

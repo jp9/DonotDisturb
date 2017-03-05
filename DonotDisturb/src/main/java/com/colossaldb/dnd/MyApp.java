@@ -31,15 +31,14 @@ import com.colossaldb.dnd.prefs.AppPreferences;
  */
 
 public class MyApp extends Application {
-    private static volatile Context context;
 
     public void onCreate() {
         super.onCreate();
-        MyApp.context = getApplicationContext();
-        AppPreferences.initialize(MyApp.context);
+        Context context = getApplicationContext();
+        AppPreferences.initialize(context);
     }
 
-    public static Context getAppContext() {
-        return MyApp.context;
+    public Context getAppContext() {
+        return getApplicationContext();
     }
 }

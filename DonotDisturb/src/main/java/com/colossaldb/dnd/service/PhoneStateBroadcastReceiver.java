@@ -11,7 +11,7 @@ import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.Pair;
-import com.colossaldb.dnd.MyApp;
+
 import com.colossaldb.dnd.prefs.AppPreferences;
 
 
@@ -50,7 +50,7 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         long startTime = System.nanoTime();
         String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-        Log.i("PhoneStateBroadcastReceiver", " State = " + state);
+        Log.i("PhoneStateBcastRcvr", " State = " + state);
         AppPreferences.getInstance().writeDebugEvent("BroadcastReceiver", "Received intent");
         if (shouldSkip())
             return;
@@ -59,7 +59,7 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
             AppPreferences.getInstance().writeDebugEvent("BroadcastReceiver", "Got ringing event");
             String number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
 
-            Pair<Boolean, Boolean> contactOrSecondCall = isContactOrSecondCall(number);
+            Pair<Boolean, Boolean> contactOrSecondCall = isContactOrSecondCall(context, number);
             boolean isContact = contactOrSecondCall.first;
             boolean isSecondMissedCall = contactOrSecondCall.second;
 
@@ -69,15 +69,15 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
                 logUnmutingRinger(isContact, isSecondMissedCall);
                 // Enable the ringer.
                 StartStopReceiver.execDnd(context,
-                        (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE),
+                        (AudioManager) context.getSystemService(Context.AUDIO_SERVICE),
                         false);
             } else {
                 AppPreferences.getInstance().writeDebugEvent("BroadcastReceiver", "Not unmuting... condition not satisfied");
             }
         } else if (TelephonyManager.EXTRA_STATE_IDLE.equals(state)) {
             AppPreferences.getInstance().writeDebugEvent("BroadcastReceiver", "State Idle. Resetting ringer.");
-            StartStopReceiver.execDnd(MyApp.getAppContext(),
-                    (AudioManager) MyApp.getAppContext().getSystemService(Context.AUDIO_SERVICE),
+            StartStopReceiver.execDnd(context,
+                    (AudioManager) context.getSystemService(Context.AUDIO_SERVICE),
                     StartStopReceiver.getDelay(AppPreferences.getInstance()).second);
         }
         long endTime = System.nanoTime();
@@ -113,24 +113,28 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
     /**
      * Is the phone call from a contact or is it a second call from same number in last 10 mins.
      */
-    private Pair<Boolean, Boolean> isContactOrSecondCall(String number) {
-        boolean isContact;
-        boolean isSecondMissedCall;
+    private Pair<Boolean, Boolean> isContactOrSecondCall(Context context, String number) {
+        boolean isContact = false;
+        boolean isSecondMissedCall = false;
         {
             long cutOffTime = System.currentTimeMillis() - 600 * 1000L;
-            Cursor c = MyApp.getAppContext().getContentResolver().query(
-                    CallLog.Calls.CONTENT_URI, new String[]{CallLog.Calls.NUMBER},
-                    CallLog.Calls.DATE + ">= ? AND " + CallLog.Calls.NUMBER + " = ? ", new String[]{cutOffTime + "", number},
-                    CallLog.Calls.DEFAULT_SORT_ORDER);
-            isSecondMissedCall = (c != null && c.moveToNext());
-            closeQuietly(c);
+            try {
+                Cursor c = context.getContentResolver().query(
+                        CallLog.Calls.CONTENT_URI, new String[]{CallLog.Calls.NUMBER},
+                        CallLog.Calls.DATE + ">= ? AND " + CallLog.Calls.NUMBER + " = ? ", new String[]{cutOffTime + "", number},
+                        CallLog.Calls.DEFAULT_SORT_ORDER);
+                isSecondMissedCall = (c != null && c.moveToNext());
+                closeQuietly(c);
 
-            Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
-            c = MyApp.getAppContext().getContentResolver().query(uri, new String[]{ContactsContract.PhoneLookup.NUMBER}, null, null, null);
-            isContact = (c != null && c.moveToNext());
-            closeQuietly(c);
+                Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
+                c = context.getContentResolver().query(uri, new String[]{ContactsContract.PhoneLookup.NUMBER}, null, null, null);
+                isContact = (c != null && c.moveToNext());
+                closeQuietly(c);
+            } catch(SecurityException e) {
+                AppPreferences.getInstance().writeDebugEvent("Ringer", "The user has not given us the permission to check contact or second call. Skipping unmute stuff");
+            }
         }
-        return new Pair<Boolean, Boolean>(isContact, isSecondMissedCall);
+        return new Pair<>(isContact, isSecondMissedCall);
     }
 
     void closeQuietly(Cursor c) {

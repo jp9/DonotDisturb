@@ -27,7 +27,7 @@
     <string name="errors">Errors</string>
     <string name="action_debug">Debug</string>
     <string name="action_about">About</string>
-    <string name="about_desc">Copyright Jayaprakash Pasala. Version 1.7</string>
+    <string name="about_desc">Copyright Jayaprakash Pasala. Version 2.0</string>
     <string name="ring_for_contacts_desc">Ring the phone when a person from address book calls</string>
     <string-array name="silence_options_2">
         <item>Always</item>
